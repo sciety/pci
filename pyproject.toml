@@ -1,0 +1,26 @@
+[project]
+name = "pci"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "cssselect",
+    "cssutils",
+    "dateutils",
+    "deep-translator",
+    "dkimpy",
+    "feedparser",
+    "furl",
+    "lxml",
+    "orderedmultidict",
+    "pillow",
+    "psycopg2-binary",
+    "pydal",
+    "pyserde",
+    "requests",
+    "requests-oauthlib",
+    "systemd",
+    "treepoem",
+    "yatl",
+]

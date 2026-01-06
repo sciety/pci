@@ -1,63 +1,27 @@
-FROM alpine:latest
+FROM ubuntu:latest
+RUN apt-get update \
+    && apt-get install -y \
+    build-essential \
+    git \
+    python3 \
+    python3-pip \
+    python3-venv \
+    sudo \
+    virtualenvwrapper \
+    libsystemd-dev \
+    postgresql \
+    postgresql-contrib \
+    libimage-exiftool-perl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN	apk add \
-		python3 \
-		python3-dev \
-		postgresql \
-		postgresql-contrib \
-		postgresql-dev \
-		exiftool \
-		ghostscript \
-		build-base \
-	;
-RUN	wget https://mdipierro.pythonanywhere.com/examples/static/web2py_src.zip \
-	&& unzip web2py_src.zip \
-	&& rm web2py_src.zip
-RUN	ln -s ../../pci web2py/applications
+WORKDIR /app
+COPY . /app
 
-RUN	mkdir pci
-WORKDIR pci
 
-COPY	requirements.in requirements.txt
-RUN	sed -i s/psycopg2-binary/psycopg2/ requirements.txt
-RUN	apk add py3-lxml py3-psycopg2 py3-pillow py3-pip
-RUN python3 -m venv /path/to/venv && . /path/to/venv/bin/activate && pip3 install -r requirements.txt
+RUN make web2py
+RUN uv sync
+RUN echo "map_admin $$USER postgres" | sudo tee -a /etc/postgresql/*/main/pg_ident.conf
+RUN sudo sed -i '/local *all *postgres *peer/ s/$$/ map=map_admin/' /etc/postgresql/*/main/pg_hba.conf
 
-RUN	apk add sudo make
-COPY	Makefile .
-
-ENV PGDATA /var/lib/postgresql/data
-
-RUN	for dir in $PGDATA /run/postgresql ; do \
-		mkdir $dir ; chown postgres:postgres $dir ;\
-	done
-
-USER postgres
-
-RUN	initdb &&\
-	echo "host all  all    0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf &&\
-	echo "listen_addresses='*'" >> $PGDATA/postgresql.conf
-
-USER root
-
-COPY	sql_dumps sql_dumps
-
-RUN	sudo -Eu postgres pg_ctl start -w	;\
-	make db test.db				;\
-	sudo -Eu postgres pg_ctl stop
-
-RUN	ln -s python3 /usr/bin/python
-COPY	docker/entrypoint.sh /
-
-RUN	apk add nginx \
-	; mkdir -p /run/nginx
-COPY	docker/nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY	. .
-RUN	make conf init
-
-ENV PCI_PASSWORD pci
-
-CMD	[ "/entrypoint.sh" ]
-
-EXPOSE 8001
+CMD ["../web2py/web2py.py", "--password", "pci", "--ip", "0.0.0.0"]
