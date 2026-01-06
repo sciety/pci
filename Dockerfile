@@ -2,10 +2,13 @@ FROM alpine:latest
 
 RUN	apk add \
 		python3 \
+		python3-dev \
 		postgresql \
 		postgresql-contrib \
+		postgresql-dev \
 		exiftool \
 		ghostscript \
+		build-base \
 	;
 RUN	wget https://mdipierro.pythonanywhere.com/examples/static/web2py_src.zip \
 	&& unzip web2py_src.zip \
