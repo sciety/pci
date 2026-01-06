@@ -18,7 +18,7 @@ WORKDIR pci
 COPY	requirements.in requirements.txt
 RUN	sed -i s/psycopg2-binary/psycopg2/ requirements.txt
 RUN	apk add py3-lxml py3-psycopg2 py3-pillow py3-pip
-RUN	pip3 install -r requirements.txt
+RUN python3 -m venv /path/to/venv && . /path/to/venv/bin/activate && pip3 install -r requirements.txt
 
 RUN	apk add sudo make
 COPY	Makefile .
