@@ -47,4 +47,5 @@ RUN sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D "$PGDATA" -w start && 
     sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D "$PGDATA" -m fast -w stop
 
 COPY . /app
+RUN make conf init
 CMD ["hivemind"]
