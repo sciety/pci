@@ -167,11 +167,8 @@ check.static:
 build:
 	docker build -t pci .
 
-dev:
-	:
-	: use ^C to quit
-	:
-	docker run --rm -it -p 8001:8001 -v `pwd`:/pci pci
+dev: build
+	docker run --rm -it -p 8080:8000 pci
 
 log:
 	@git log --merges --format=%s \
