@@ -185,6 +185,19 @@ def index():
             panel=None,
         )
 
+def test_content():
+    response.view = "default/index.html"
+
+    return dict(
+            pageTitle=getTitle("#HomeTitle"),
+            customText=getText("#HomeInfo"),
+            pageHelp=getHelp("#Home"),
+            shareable=True,
+            currentUrl=URL(c="default", f="index"),
+            pciRRactivated=pciRRactivated,
+            panel=None,
+        )
+
 
 def _follow_us():
     channels = {
