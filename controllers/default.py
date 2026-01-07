@@ -186,14 +186,14 @@ def index():
         )
 
 def test_content():
-    response.view = "default/index.html"
+    response.view = "default/test_content.html"
 
     return dict(
             pageTitle=getTitle("#HomeTitle"),
             customText=getText("#HomeInfo"),
             pageHelp=getHelp("#Home"),
             shareable=True,
-            currentUrl=URL(c="default", f="index"),
+            currentUrl=URL(c="default", f="test_content"),
             pciRRactivated=pciRRactivated,
             panel=None,
         )
