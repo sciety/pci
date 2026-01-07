@@ -81,6 +81,7 @@ test.setup: test.db
 
 test.db:
 	$(psql) main < sql_dumps/insert_test_users.sql
+	$(psql) main < sql_dumps/insert_test_article_complete.sql
 
 test.db.rr:
 	$(psql) main -c "delete from mail_templates"
