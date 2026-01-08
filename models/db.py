@@ -1052,7 +1052,7 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
-def get_all_review_text():
+def get_relevant_reviews_text():
     articleId = db.executesql("""
         SELECT id FROM t_articles
         WHERE doi = 'https://doi.org/10.1101/2024.12.15.628567'
@@ -1063,12 +1063,14 @@ def get_all_review_text():
         WHERE article_id = {id}
     """.format(id=articleId), as_dict=False)[0][0]
 
-    allReviewText = db.executesql("""
+    relevantReviewsText = db.executesql("""
         SELECT review FROM t_reviews
-    """, as_dict=True)
-    return { "articleId": articleId, "recommendationId": recommendationId, "allReviewText": allReviewText }
+        WHERE recommendation_id = {id}
+    """.format(id=recommendationId), as_dict=True)
 
-db.get_all_review_text = get_all_review_text
+    return relevantReviewsText
+
+db.get_relevant_reviews_text = get_relevant_reviews_text
 
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
