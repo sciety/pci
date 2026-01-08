@@ -77,6 +77,7 @@ def index():
 
     recomms = db.get_last_recomms()
 
+
     def articleRow(article_id: int, row: ...):
         return article_components.getRecommArticleRowCard(
                         row,
@@ -187,9 +188,9 @@ def index():
 
 def test_content():
     response.view = "default/test_content.html"
-
+    snippet = db.get_all_review_text()
     return dict(
-            htmlSnippet="<b>Html snippet</b>",
+            htmlSnippet=snippet,
         )
 
 

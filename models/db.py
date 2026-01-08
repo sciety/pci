@@ -1052,6 +1052,13 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
+def get_all_review_text():
+    allReviewText = db.executesql("""
+        SELECT review FROM t_reviews
+    """, as_dict=True)
+    return allReviewText
+
+db.get_all_review_text = get_all_review_text
 
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
