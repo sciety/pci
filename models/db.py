@@ -1053,10 +1053,15 @@ def get_last_recomms():
 db.get_last_recomms = get_last_recomms
 
 def get_all_review_text():
+    articleId = db.executesql("""
+        SELECT id FROM t_articles
+        WHERE doi = 'https://doi.org/10.1101/2024.12.15.628567'
+    """, as_dict=True)
+
     allReviewText = db.executesql("""
         SELECT review FROM t_reviews
     """, as_dict=True)
-    return allReviewText
+    return { "articleId": articleId, "allReviewText": allReviewText }
 
 db.get_all_review_text = get_all_review_text
 
