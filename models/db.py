@@ -1056,7 +1056,7 @@ def get_all_review_text():
     articleId = db.executesql("""
         SELECT id FROM t_articles
         WHERE doi = 'https://doi.org/10.1101/2024.12.15.628567'
-    """, as_dict=True)
+    """, as_dict=False)[0][0]
 
     allReviewText = db.executesql("""
         SELECT review FROM t_reviews
