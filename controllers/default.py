@@ -189,17 +189,18 @@ def index():
 def content():
     path_param = '/'.join(request.args) if request.args else None
     # 10.24072/pci.neuro.100217.rev11
-    # parse out the doi
     # if it does grab numbers after rev
-    # recommendationDoi
     # reviewRound
     # the review number
     response.view = "default/content.html"
     isAReview = "rev" in path_param
     if isAReview:
+        stop_index = path_param.find(".rev")
+        sliced_string = path_param[:stop_index]
+        recommendation_doi = sliced_string
         snippet = db.get_relevant_reviews_text()
         return dict(
-            reviewIdentifier=isAReview,
+            reviewIdentifier=recommendation_doi,
             htmlSnippet=snippet,
         )
 
