@@ -1072,6 +1072,11 @@ def get_relevant_reviews_text():
 
 db.get_relevant_reviews_text = get_relevant_reviews_text
 
+def get_review_text(recommendation_doi, review_round_number, review_number):
+    return "Dummy review text"
+
+db.get_review_text = get_review_text
+
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
     & (db.t_articles.id == db.t_recommendations.article_id)
