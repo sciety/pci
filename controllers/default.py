@@ -192,18 +192,19 @@ def content():
     response.view = "default/content.html"
     isAReview = "rev" in path_param
     if isAReview:
-        delimeter = ".rev"
-        delimeter_start_index = path_param.find(delimeter)
-        delimeter_stop_index = delimeter_start_index + len(delimeter)
-        recommendation_doi = path_param[:delimeter_start_index]
+        delimiter = ".rev"
+        delimiter_start_index = path_param.find(delimiter)
+        delimiter_stop_index = delimiter_start_index + len(delimiter)
+        recommendation_doi = path_param[:delimiter_start_index]
         # We assume there aren't more than nine rounds of reviews
-        review_round_number = path_param[delimeter_stop_index:][0]
+        review_round_number = path_param[delimiter_stop_index:][0]
+        review_number = path_param[delimiter_stop_index:][1:]
         snippet = db.get_relevant_reviews_text()
         return dict(
             recommendationDoi=recommendation_doi,
             htmlSnippet=snippet,
             reviewRoundNumber=review_round_number,
-            reviewNumber=None
+            reviewNumber=review_number
         )
 
     return dict(
