@@ -186,8 +186,8 @@ def index():
             panel=None,
         )
 
-def test_content():
-    response.view = "default/test_content.html"
+def content():
+    response.view = "default/content.html"
     snippet = db.get_relevant_reviews_text()
     return dict(
             htmlSnippet=snippet,
