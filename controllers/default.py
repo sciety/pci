@@ -188,11 +188,24 @@ def index():
 
 def content():
     path_param = '/'.join(request.args) if request.args else None
+    # 10.24072/pci.neuro.100217.rev11
+    # parse out the doi
+    # if it does grab numbers after rev
+    # recommendationDoi
+    # reviewRound
+    # the review number
     response.view = "default/content.html"
-    snippet = db.get_relevant_reviews_text()
-    return dict(
-            reviewIdentifier=path_param,
+    isAReview = "rev" in path_param
+    if isAReview:
+        snippet = db.get_relevant_reviews_text()
+        return dict(
+            reviewIdentifier=isAReview,
             htmlSnippet=snippet,
+        )
+
+    return dict(
+            reviewIdentifier=None,
+            htmlSnippet="",
         )
 
 def _follow_us():
