@@ -200,13 +200,14 @@ def content():
         recommendation_doi = sliced_string
         snippet = db.get_relevant_reviews_text()
         return dict(
-            reviewIdentifier=recommendation_doi,
+            recommendationDoi=recommendation_doi,
             htmlSnippet=snippet,
+            reviewRoundNumber=None,
+            reviewNumber=None
         )
 
     return dict(
-            reviewIdentifier=None,
-            htmlSnippet="",
+            htmlSnippet="Not a review",
         )
 
 def _follow_us():

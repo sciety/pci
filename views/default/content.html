@@ -1,5 +1,7 @@
-{{if 'reviewIdentifier' in locals():}}
-{{=reviewIdentifier}}
+{{if 'recommendationDoi' in locals():}}
+<p>Recommendation doi: {{=recommendationDoi}}</p>
+<p>Review round number: {{=reviewRoundNumber}}</p>
+<p>Review number within the round: {{=reviewNumber}}</p>
 {{pass}}
 
 {{if 'htmlSnippet' in locals():}}
