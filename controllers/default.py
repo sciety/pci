@@ -187,12 +187,13 @@ def index():
         )
 
 def content():
+    path_param = request.args(0) if request.args else None
     response.view = "default/content.html"
     snippet = db.get_relevant_reviews_text()
     return dict(
+            reviewIdentifier=path_param,
             htmlSnippet=snippet,
         )
-
 
 def _follow_us():
     channels = {
