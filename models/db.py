@@ -1073,7 +1073,17 @@ def get_relevant_reviews_text():
 db.get_relevant_reviews_text = get_relevant_reviews_text
 
 def get_review_text(recommendation_doi, review_round_number, review_number):
-    return "Dummy review text"
+    recommendationId = db.executesql("""
+        SELECT id FROM t_recommendations
+        WHERE doi = %s
+    """, (recommendation_doi,), as_dict=True)
+
+    # relevantReviews = db.executesql("""
+    #     SELECT id FROM t_reviews
+    #     WHERE recommendation_id = {id}
+    # """.format(id=recommendationId), as_dict=True)
+
+    return recommendationId
 
 db.get_review_text = get_review_text
 
