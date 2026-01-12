@@ -169,7 +169,10 @@ build:
 	docker build -t pci .
 
 dev: build
-	docker run --rm -it --name pci -p 8080:8000 pci
+	docker run --rm -d --name pci -p 8080:8000 pci
+	sleep 3
+	docker exec -it pci make test.db
+	docker attach pci
 
 log:
 	@git log --merges --format=%s \
