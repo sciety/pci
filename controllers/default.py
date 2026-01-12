@@ -23,6 +23,7 @@ from gluon.contrib.appconfig import AppConfig # type: ignore
 from gluon.http import HTTP, redirect # type: ignore
 from gluon.sqlhtml import SQLFORM
 from gluon.utils import web2py_uuid # type: ignore
+from gluon.contrib.markdown import WIKI
 
 from models.article import Article
 from models.recommendation import Recommendation
@@ -200,10 +201,11 @@ def content():
     review_round_number = path_param[delimiter_stop_index:][0]
     review_number = path_param[delimiter_stop_index:][1:]
     reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
+    foo = WIKI(reviewContentAsHtml, safe_mode="")
     if reviewContentAsHtml is None:
         raise HTTP(404, "No such review")
-    
-    return reviewContentAsHtml
+
+    return foo
 
 
 def _follow_us():
