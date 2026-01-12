@@ -169,7 +169,7 @@ build:
 	docker build -t pci .
 
 dev: build
-	docker run --rm -it -p 8080:8000 pci
+	docker run --rm -it --name pci -p 8080:8000 pci
 
 log:
 	@git log --merges --format=%s \
