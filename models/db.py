@@ -1073,17 +1073,34 @@ def get_relevant_reviews_text():
 db.get_relevant_reviews_text = get_relevant_reviews_text
 
 def get_review_text(recommendation_doi, review_round_number, review_number):
-    recommendationId = db.executesql("""
-        SELECT id FROM t_recommendations
-        WHERE doi = %s
-    """, (recommendation_doi,), as_dict=True)
+    rec_rows = db.executesql(
+        """
+        SELECT id
+        FROM t_recommendations
+        WHERE recommendation_doi = %s
+        ORDER BY id ASC
+        OFFSET %s - 1
+        LIMIT 1;
+        """,
+        (recommendation_doi, review_round_number),
+        as_dict=True,
+    )
+    recommendation_id = rec_rows[0]['id'] if rec_rows else None
 
-    # relevantReviews = db.executesql("""
-    #     SELECT id FROM t_reviews
-    #     WHERE recommendation_id = {id}
-    # """.format(id=recommendationId), as_dict=True)
+    review_text = db.executesql(
+        """
+        SELECT review
+        FROM t_reviews
+        WHERE recommendation_id = %s
+        ORDER BY id ASC
+        OFFSET %s - 1
+        LIMIT 1;
+        """,
+        (recommendation_id, review_number),
+        as_dict=True,
+    )
 
-    return recommendationId
+    return review_text
 
 db.get_review_text = get_review_text
 
