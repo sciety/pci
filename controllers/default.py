@@ -199,7 +199,7 @@ def content():
         # We assume there aren't more than nine rounds of reviews
         review_round_number = path_param[delimiter_stop_index:][0]
         review_number = path_param[delimiter_stop_index:][1:]
-        reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)[0]["review"]
+        reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
         return dict(
             htmlSnippet=reviewContentAsHtml,
         )

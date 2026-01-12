@@ -1085,8 +1085,10 @@ def get_review_text(recommendation_doi, review_round_number, review_number):
         (recommendation_doi, review_round_number),
         as_dict=True,
     )
-    recommendation_id = rec_rows[0]['id'] if rec_rows else None
+    if len(rec_rows) != 1:
+        return None
 
+    recommendation_id = rec_rows[0]['id']
     review_text = db.executesql(
         """
         SELECT review
@@ -1100,7 +1102,10 @@ def get_review_text(recommendation_doi, review_round_number, review_number):
         as_dict=True,
     )
 
-    return review_text
+    if len(review_text) != 1:
+        return None
+
+    return review_text[0]['review']
 
 db.get_review_text = get_review_text
 
