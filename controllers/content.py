@@ -1,24 +1,17 @@
 from gluon.http import HTTP # type: ignore
 from gluon.contrib.markdown import WIKI
+import re
 
 def _decode_evaluation_doi(path: str):
-    isAReview = "rev" in path
-    if not isAReview:
+    match = re.match(r'^(.*)\.rev(\d)(\d+)$', path)
+    if not match:
         return None
-
-    delimiter = ".rev"
-    delimiter_start_index = path.find(delimiter)
-    delimiter_stop_index = delimiter_start_index + len(delimiter)
-    recommendation_doi = path[:delimiter_start_index]
-    # We assume there aren't more than nine rounds of reviews
-    review_round_number = path[delimiter_stop_index:][0]
-    review_number = path[delimiter_stop_index:][1:]
-
+    recommendation_doi, round_number, evaluation_number = match.groups()
     return dict(
-       recommendation_doi=recommendation_doi,
-       evaluation_type='rev',
-       round_number=review_round_number,
-       evaluation_number=review_number
+        recommendation_doi=recommendation_doi,
+        evaluation_type='rev',
+        round_number=round_number,
+        evaluation_number=evaluation_number
     )
 
 
