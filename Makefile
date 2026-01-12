@@ -171,8 +171,11 @@ build:
 dev: build
 	docker run --rm -d --name pci -p 8080:8000 pci
 	sleep 3
-	docker exec -it pci make test.db
+	docker exec pci make test.db
 	docker attach pci
+
+watch:
+	find . -type f | grep '.py' | entr -r make dev
 
 log:
 	@git log --merges --format=%s \
