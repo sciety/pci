@@ -3,7 +3,7 @@ from gluon.contrib.markdown import WIKI
 import re
 
 def _decode_evaluation_doi(path: str):
-    match = re.match(r'^(.*)\.(rev|d|ar)(\d)(\d+)$', path)
+    match = re.match(r'^(.*)\.(rev|d|ar)(\d)(\d*)$', path)
     if not match:
         return None
     recommendation_doi, evaluation_type, round_number, evaluation_number = match.groups()
