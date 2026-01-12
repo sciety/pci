@@ -191,22 +191,23 @@ def content():
     # 10.24072/pci.neuro.100217.rev11
     response.view = "default/content.html"
     isAReview = "rev" in path_param
-    if isAReview:
-        delimiter = ".rev"
-        delimiter_start_index = path_param.find(delimiter)
-        delimiter_stop_index = delimiter_start_index + len(delimiter)
-        recommendation_doi = path_param[:delimiter_start_index]
-        # We assume there aren't more than nine rounds of reviews
-        review_round_number = path_param[delimiter_stop_index:][0]
-        review_number = path_param[delimiter_stop_index:][1:]
-        reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
-        return dict(
-            htmlSnippet=reviewContentAsHtml,
-        )
+    if not isAReview:
+        raise HTTP(404, "DOI is not for a review")
 
+    delimiter = ".rev"
+    delimiter_start_index = path_param.find(delimiter)
+    delimiter_stop_index = delimiter_start_index + len(delimiter)
+    recommendation_doi = path_param[:delimiter_start_index]
+    # We assume there aren't more than nine rounds of reviews
+    review_round_number = path_param[delimiter_stop_index:][0]
+    review_number = path_param[delimiter_stop_index:][1:]
+    reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
+    if reviewContentAsHtml is None:
+        raise HTTP(404, "No such review")
     return dict(
-            htmlSnippet="Not a review",
-        )
+        htmlSnippet=reviewContentAsHtml,
+    )
+
 
 def _follow_us():
     channels = {
