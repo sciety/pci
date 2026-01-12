@@ -30,10 +30,10 @@ def doi():
     if decodedRequest['evaluation_type'] == 'ar':
         raise HTTP(400, "Unsupported evaluation type")
 
-    reviewContentAsMarkdown = db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
-    if reviewContentAsMarkdown is None:
+    markdownContent = db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
+    if markdownContent is None:
         raise HTTP(404, "No such review")
 
-    reviewContentAsHtml = WIKI(reviewContentAsMarkdown, safe_mode="")
+    contentAsHtml = WIKI(markdownContent, safe_mode="")
 
-    return reviewContentAsHtml
+    return contentAsHtml
