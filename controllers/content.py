@@ -14,9 +14,10 @@ def doi():
     # We assume there aren't more than nine rounds of reviews
     review_round_number = path_param[delimiter_stop_index:][0]
     review_number = path_param[delimiter_stop_index:][1:]
-    reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
-    foo = WIKI(reviewContentAsHtml, safe_mode="")
-    if reviewContentAsHtml is None:
+    reviewContentAsMarkdown = db.get_review_text(recommendation_doi, review_round_number, review_number)
+    if reviewContentAsMarkdown is None:
         raise HTTP(404, "No such review")
+    
+    reviewContentAsHtml = WIKI(reviewContentAsMarkdown, safe_mode="")
 
-    return foo
+    return reviewContentAsHtml
