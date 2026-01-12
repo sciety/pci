@@ -188,8 +188,6 @@ def index():
 
 def content():
     path_param = '/'.join(request.args) if request.args else None
-    # 10.24072/pci.neuro.100217.rev11
-    response.view = "default/content.html"
     isAReview = "rev" in path_param
     if not isAReview:
         raise HTTP(404, "DOI is not for a review")
@@ -204,9 +202,8 @@ def content():
     reviewContentAsHtml = db.get_review_text(recommendation_doi, review_round_number, review_number)
     if reviewContentAsHtml is None:
         raise HTTP(404, "No such review")
-    return dict(
-        htmlSnippet=reviewContentAsHtml,
-    )
+    
+    return reviewContentAsHtml
 
 
 def _follow_us():
