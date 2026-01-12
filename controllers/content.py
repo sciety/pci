@@ -25,12 +25,13 @@ def doi():
     if decodedRequest is None:
         raise HTTP(400, "Invalid DOI")
 
+    markdownContent = None
     if decodedRequest['evaluation_type'] == 'd':
-        raise HTTP(400, "Unsupported evaluation type")
+        markdownContent = db.get_decision_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'])
     if decodedRequest['evaluation_type'] == 'ar':
         raise HTTP(400, "Unsupported evaluation type")
-
-    markdownContent = db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
+    if decodedRequest['evaluation_type'] == 'rev':
+        markdownContent = db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
     if markdownContent is None:
         raise HTTP(404, "No such review")
 
