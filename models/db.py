@@ -1091,6 +1091,11 @@ def get_decision_text(recommendation_doi, review_round_number):
 
 db.get_decision_text = get_decision_text
 
+def get_author_response_text():
+    return None
+
+db.get_author_response_text = get_author_response_text
+
 def get_review_text(recommendation_doi, review_round_number, review_number):
     rec_rows = db.executesql(
         """

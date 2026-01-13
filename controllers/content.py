@@ -28,7 +28,7 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: str):
                 raise HTTP(400, "Invalid DOI")
             return db.get_decision_text(decoded_request['recommendation_doi'], decoded_request['round_number'])
         case EvaluationType.AUTHOR_RESPONSE:
-            raise HTTP(400, "Unsupported evaluation type")
+            return db.get_author_response_text()
         case EvaluationType.REVIEW:
             return db.get_review_text(decoded_request['recommendation_doi'], decoded_request['round_number'], decoded_request['evaluation_number'])
     return None
