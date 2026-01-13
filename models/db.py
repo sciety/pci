@@ -1074,16 +1074,12 @@ db.get_relevant_reviews_text = get_relevant_reviews_text
 
 def get_recommendation_text(recommendation_doi):
     print('here we go', recommendation_doi)
-    rec_rows = db.executesql(
-    """
-    SELECT recommendation_comments
-    FROM t_recommendations
-    WHERE recommendation_doi = %s
-    ORDER BY id ASC
-    """,
-    (recommendation_doi, ),
-    as_dict=True,
-    )
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.recommendation_comments,
+        orderby=db.t_recommendations.id
+    ).as_list()
     if len(rec_rows) == 0:
         return None
     return rec_rows[-1]['recommendation_comments']
@@ -1091,18 +1087,13 @@ def get_recommendation_text(recommendation_doi):
 db.get_recommendation_text = get_recommendation_text
 
 def get_decision_text(recommendation_doi, review_round_number):
-    rec_rows = db.executesql(
-    """
-    SELECT recommendation_comments
-    FROM t_recommendations
-    WHERE recommendation_doi = %s
-    ORDER BY id ASC
-    OFFSET %s - 1
-    LIMIT 1;
-    """,
-    (recommendation_doi, review_round_number),
-    as_dict=True,
-    )
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.recommendation_comments,
+        orderby=db.t_recommendations.id,
+        limitby=(int(review_round_number) - 1, int(review_round_number))
+    ).as_list()
     if len(rec_rows) != 1:
         return None
     return rec_rows[0]['recommendation_comments']
@@ -1110,17 +1101,12 @@ def get_decision_text(recommendation_doi, review_round_number):
 db.get_decision_text = get_decision_text
 
 def get_author_response_text(recommendation_doi, review_round_number):
-    rec_rows = db.executesql(
-    """
-    SELECT reply
-    FROM t_recommendations
-    WHERE recommendation_doi = %s
-    ORDER BY id ASC
-    OFFSET %s - 1
-    LIMIT 1;
-    """,
-    (recommendation_doi, review_round_number),
-    as_dict=True,
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.reply,
+        orderby=db.t_recommendations.id,
+        limitby=(review_round_number - 1, review_round_number)
     )
     if len(rec_rows) != 1:
         return None
@@ -1129,34 +1115,24 @@ def get_author_response_text(recommendation_doi, review_round_number):
 db.get_author_response_text = get_author_response_text
 
 def get_review_text(recommendation_doi, review_round_number, review_number):
-    rec_rows = db.executesql(
-        """
-        SELECT id
-        FROM t_recommendations
-        WHERE recommendation_doi = %s
-        ORDER BY id ASC
-        OFFSET %s - 1
-        LIMIT 1;
-        """,
-        (recommendation_doi, review_round_number),
-        as_dict=True,
-    )
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.id,
+        orderby=db.t_recommendations.id,
+        limitby=(int(review_round_number) - 1, int(review_round_number))
+    ).as_list()
     if len(rec_rows) != 1:
         return None
 
     recommendation_id = rec_rows[0]['id']
-    review_text = db.executesql(
-        """
-        SELECT review
-        FROM t_reviews
-        WHERE recommendation_id = %s
-        ORDER BY id ASC
-        OFFSET %s - 1
-        LIMIT 1;
-        """,
-        (recommendation_id, review_number),
-        as_dict=True,
-    )
+    review_text = db(
+        db.t_reviews.recommendation_id == recommendation_id
+    ).select(
+        db.t_reviews.review,
+        orderby=db.t_reviews.id,
+        limitby=(int(review_number) - 1, int(review_number))
+    ).as_list()
 
     if len(review_text) != 1:
         return None
