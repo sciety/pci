@@ -44,10 +44,13 @@ def doi():
     if decodedRequest is None:
         raise HTTP(400, "Invalid DOI")
 
-    markdownContent = _get_markdown_content_based_on_evaluation_type(decodedRequest)
-    if markdownContent is None:
+    if decodedRequest['evaluation_type'] == '':
+        markdown_content = db.get_recommendation_text(decodedRequest['recommendation_doi'])
+    else:
+        markdown_content = _get_markdown_content_based_on_evaluation_type(decodedRequest)
+    if markdown_content is None:
         raise HTTP(404, "No such review")
 
-    contentAsHtml = WIKI(markdownContent, safe_mode="")
+    contentAsHtml = WIKI(markdown_content, safe_mode="")
 
     return contentAsHtml
