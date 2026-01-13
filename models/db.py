@@ -1073,7 +1073,20 @@ def get_relevant_reviews_text():
 db.get_relevant_reviews_text = get_relevant_reviews_text
 
 def get_recommendation_text(recommendation_doi):
-    return None
+    print('here we go', recommendation_doi)
+    rec_rows = db.executesql(
+    """
+    SELECT recommendation_comments
+    FROM t_recommendations
+    WHERE recommendation_doi = %s
+    ORDER BY id ASC
+    """,
+    (recommendation_doi, ),
+    as_dict=True,
+    )
+    if len(rec_rows) == 0:
+        return None
+    return rec_rows[-1]['recommendation_comments']
 
 db.get_recommendation_text = get_recommendation_text
 
