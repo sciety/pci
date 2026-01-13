@@ -3,6 +3,30 @@ from gluon.contrib.markdown import WIKI
 from enum import Enum
 import re
 
+class EvaluationType(Enum):
+    REVIEW = "rev"
+    DECISION = "d"
+    AUTHOR_RESPONSE = "ar"
+# >>> def handle_semaphore(light):
+# ...     match light:
+# ...         case Semaphore.RED:
+# ...             print("You must stop!")
+# ...         case Semaphore.YELLOW:
+# ...             print("Light will change to red, be careful!")
+# ...         case Semaphore.GREEN:
+# ...             print("You can continue!")
+# ...
+
+# >>> handle_semaphore(Semaphore.GREEN)
+# You can continue!
+
+# >>> handle_semaphore(Semaphore.YELLOW)
+# Light will change to red, be careful!
+
+# >>> handle_semaphore(Semaphore.RED)
+# You must stop!
+
+
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str):
     match = re.match(r'^(.*)\.(rev|d|ar)(\d)(\d*)$', path)
@@ -17,14 +41,15 @@ def _decode_evaluation_doi(path: str):
     )
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request: str):
-    if decoded_request['evaluation_type'] == 'd':
-        if decoded_request['evaluation_number'] != '':
-            raise HTTP(400, "Invalid DOI")
-        return db.get_decision_text(decoded_request['recommendation_doi'], decoded_request['round_number'])
-    if decoded_request['evaluation_type'] == 'ar':
-        raise HTTP(400, "Unsupported evaluation type")
-    if decoded_request['evaluation_type'] == 'rev':
-        return db.get_review_text(decoded_request['recommendation_doi'], decoded_request['round_number'], decoded_request['evaluation_number'])
+    match decoded_request['evaluation_type']:
+        case EvaluationType.DECISION.value:
+            if decoded_request['evaluation_number'] != '':
+                raise HTTP(400, "Invalid DOI")
+            return db.get_decision_text(decoded_request['recommendation_doi'], decoded_request['round_number'])
+        case EvaluationType.AUTHOR_RESPONSE.value:
+            raise HTTP(400, "Unsupported evaluation type")
+        case EvaluationType.REVIEW.value:
+            return db.get_review_text(decoded_request['recommendation_doi'], decoded_request['round_number'], decoded_request['evaluation_number'])
     return None
 
 def doi():
