@@ -1091,8 +1091,22 @@ def get_decision_text(recommendation_doi, review_round_number):
 
 db.get_decision_text = get_decision_text
 
-def get_author_response_text():
-    return None
+def get_author_response_text(recommendation_doi, review_round_number):
+    rec_rows = db.executesql(
+    """
+    SELECT reply
+    FROM t_recommendations
+    WHERE recommendation_doi = %s
+    ORDER BY id ASC
+    OFFSET %s - 1
+    LIMIT 1;
+    """,
+    (recommendation_doi, review_round_number),
+    as_dict=True,
+    )
+    if len(rec_rows) != 1:
+        return None
+    return rec_rows[0]['reply']
 
 db.get_author_response_text = get_author_response_text
 
