@@ -3,6 +3,7 @@ from gluon.contrib.markdown import WIKI
 from enum import Enum
 import re
 
+# We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str):
     match = re.match(r'^(.*)\.(rev|d|ar)(\d)(\d*)$', path)
     if not match:
@@ -15,13 +16,15 @@ def _decode_evaluation_doi(path: str):
         evaluation_number=evaluation_number
     )
 
-def _get_markdown_content_based_on_evaluation_type(decodedRequest: str):
-    if decodedRequest['evaluation_type'] == 'd':
-        return db.get_decision_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'])
-    if decodedRequest['evaluation_type'] == 'ar':
+def _get_markdown_content_based_on_evaluation_type(decoded_request: str):
+    if decoded_request['evaluation_type'] == 'd':
+        if decoded_request['evaluation_number'] != '':
+            raise HTTP(400, "Invalid DOI")
+        return db.get_decision_text(decoded_request['recommendation_doi'], decoded_request['round_number'])
+    if decoded_request['evaluation_type'] == 'ar':
         raise HTTP(400, "Unsupported evaluation type")
-    if decodedRequest['evaluation_type'] == 'rev':
-        return db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
+    if decoded_request['evaluation_type'] == 'rev':
+        return db.get_review_text(decoded_request['recommendation_doi'], decoded_request['round_number'], decoded_request['evaluation_number'])
     return None
 
 def doi():
