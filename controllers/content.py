@@ -9,13 +9,19 @@ class EvaluationType(Enum):
     REVIEW = "rev"
     DECISION = "d"
     AUTHOR_RESPONSE = "ar"
+    RECOMMENDATION = "recommendation"
 
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str):
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)(\d*)$", path)
     if not match:
-        return None
+        return dict(
+            recommendation_doi=path,
+            evaluation_type=EvaluationType("recommendation"),
+            round_number=None,
+            evaluation_number=None,
+        )
     recommendation_doi, evaluation_type, round_number, evaluation_number = (
         match.groups()
     )
@@ -47,6 +53,8 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
                 decoded_request["round_number"],
                 decoded_request["evaluation_number"],
             )
+        case EvaluationType.RECOMMENDATION:
+            return db.get_recommendation_text(decoded_request["recommendation_doi"])
     return None
 
 
@@ -59,14 +67,7 @@ def doi():
     if decodedRequest is None:
         raise HTTP(400, "Invalid DOI")
 
-    if decodedRequest["evaluation_type"] == "":
-        markdown_content = db.get_recommendation_text(
-            decodedRequest["recommendation_doi"]
-        )
-    else:
-        markdown_content = _get_markdown_content_based_on_evaluation_type(
-            decodedRequest
-        )
+    markdown_content = _get_markdown_content_based_on_evaluation_type(decodedRequest)
     if markdown_content is None:
         raise HTTP(404, "No such review")
 
