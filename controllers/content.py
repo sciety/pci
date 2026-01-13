@@ -1,5 +1,6 @@
 from gluon.http import HTTP # type: ignore
 from gluon.contrib.markdown import WIKI
+from enum import Enum
 import re
 
 def _decode_evaluation_doi(path: str):
@@ -14,6 +15,14 @@ def _decode_evaluation_doi(path: str):
         evaluation_number=evaluation_number
     )
 
+def _get_markdown_content_based_on_evaluation_type(decodedRequest: str):
+    if decodedRequest['evaluation_type'] == 'd':
+        return db.get_decision_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'])
+    if decodedRequest['evaluation_type'] == 'ar':
+        raise HTTP(400, "Unsupported evaluation type")
+    if decodedRequest['evaluation_type'] == 'rev':
+        return db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
+    return None
 
 def doi():
     if request.args is None:
@@ -21,17 +30,10 @@ def doi():
 
     path_param = '/'.join(request.args)
     decodedRequest = _decode_evaluation_doi(path_param)
-
     if decodedRequest is None:
         raise HTTP(400, "Invalid DOI")
 
-    markdownContent = None
-    if decodedRequest['evaluation_type'] == 'd':
-        markdownContent = db.get_decision_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'])
-    if decodedRequest['evaluation_type'] == 'ar':
-        raise HTTP(400, "Unsupported evaluation type")
-    if decodedRequest['evaluation_type'] == 'rev':
-        markdownContent = db.get_review_text(decodedRequest['recommendation_doi'], decodedRequest['round_number'], decodedRequest['evaluation_number'])
+    markdownContent = _get_markdown_content_based_on_evaluation_type(decodedRequest)
     if markdownContent is None:
         raise HTTP(404, "No such review")
 
