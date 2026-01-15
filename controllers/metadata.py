@@ -125,7 +125,7 @@ def recommendation_as_docmaps(version: Recommendation | Any,
         "doi": doi or None,
         "type": typ,
         "content": {
-            "web-content": 'http://localhost:8080/content/doi/10.24072/pci.neuro.100217.d1'
+            "web-content": f"(http://localhost:8080/content/doi/{doi})"
         }
     }
 
