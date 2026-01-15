@@ -125,7 +125,7 @@ def recommendation_as_docmaps(version: Recommendation | Any,
         "doi": doi or None,
         "type": typ,
         "content": {
-            "web-content": f"(http://localhost:8080/content/doi/{doi})"
+            "web-content": URL("content", f"doi/{doi}", scheme=True)
         }
     }
 
