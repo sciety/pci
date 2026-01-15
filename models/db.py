@@ -1106,7 +1106,7 @@ def get_author_response_text(recommendation_doi, review_round_number):
     ).select(
         db.t_recommendations.reply,
         orderby=db.t_recommendations.id,
-        limitby=(review_round_number - 1, review_round_number)
+        limitby=(int(review_round_number) - 1, int(review_round_number))
     )
     if len(rec_rows) != 1:
         return None
