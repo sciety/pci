@@ -82,6 +82,9 @@ test.setup: test.db
 test.db:
 	$(psql) main < sql_dumps/insert_test_users.sql
 	$(psql) main < sql_dumps/insert_test_article_complete.sql
+ 
+test.db-additional:
+	$(psql) main < sql_dumps/pci_additional_private.pgdump
 
 test.db.rr:
 	$(psql) main -c "delete from mail_templates"
@@ -169,9 +172,18 @@ build:
 	docker build -t pci .
 
 dev: build
+	docker kill pci || echo "No pci container running"
 	docker run --rm -d --name pci -p 8080:8000 pci
 	sleep 3
 	docker exec pci make test.db
+	docker attach pci
+
+#additional temp target to be able to run some data locally only
+dev-additional-data: build
+	docker kill pci || echo "No pci container running"
+	docker run --rm -d --name pci -p 8080:8000 pci
+	sleep 3
+	docker exec pci make test.db-additional
 	docker attach pci
 
 watch:
