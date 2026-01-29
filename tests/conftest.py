@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from argparse import Namespace
 from os import getenv
 
@@ -9,7 +10,13 @@ DEFAULT_SLEEP = int(1)
 def get_driver():
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless") if not getenv("show") else None
-    return webdriver.Firefox(options=options)
+    # Disable sandbox for Docker compatibility
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    # Explicitly set binary locations for ARM64 compatibility
+    options.binary_location = "/usr/bin/firefox"
+    service = Service(executable_path="/usr/local/bin/geckodriver")
+    return webdriver.Firefox(options=options, service=service)
 
 def get_config():
     base_url = "http://localhost:8000"

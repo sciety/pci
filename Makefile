@@ -106,20 +106,20 @@ test.full test.basic test.medium test.scheduled-track: test.clean
 
 
 test.create-article:
-	cd tests ; pytest -k "basic and User_submits"
+	cd tests ; uv run pytest -k "basic and User_submits"
 
 test.review.registered-user:
-	cd tests; pytest -v -k "review_article and Reviewer"
+	cd tests; uv run pytest -v -k "review_article and Reviewer"
 
 test.review.external:
-	cd tests; pytest -v -k "review_article and External"
+	cd tests; uv run pytest -v -k "review_article and External"
 
 test.review.no-upload:
 	cd tests; RR_SCHEDULED_TRACK=1 \
-	pytest -v -k "review_article and Reviewer"
+	uv run pytest -v -k "review_article and Reviewer"
 
 test_%:
-	(cd tests; pytest -xv $@)
+	(cd tests; uv run pytest -xv $@)
 
 delete.external.user:
 	$(psql) main -c "delete from auth_user where first_name='Titi';"
@@ -170,9 +170,26 @@ build:
 dev: build
 	docker kill pci || echo "No pci container running"
 	docker run --rm -d --name pci -p 8080:8000 pci
-	sleep 3
-	docker exec pci make test.db
 	docker attach pci
+
+watch:
+	find . -type f | grep '.py' | entr -r make dev
+
+# Docker test targets
+test.docker.reset:
+	docker exec pci make test.reset
+
+test.docker.basic:
+	docker exec pci make test.basic
+
+test.docker.medium:
+	docker exec pci make test.medium
+
+test.docker.full:
+	docker exec pci make test.full
+
+test.docker.pytest:
+	docker exec pci sh -c "cd tests && pytest $(ARGS)"
 
 log:
 	@git log --merges --format=%s \

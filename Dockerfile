@@ -12,7 +12,36 @@ RUN apt-get update \
     postgresql \
     postgresql-contrib \
     libimage-exiftool-perl \
+    curl \
+    wget \
+    xvfb \
+    x11-utils \
+    dbus-x11 \
+    libgtk-3-0 \
+    libasound2t64 \
+    libdbus-glib-1-2 \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Firefox from Mozilla Team PPA (not the snap version)
+RUN add-apt-repository -y ppa:mozillateam/ppa \
+    && echo 'Package: *\nPin: release o=LP-PPA-mozillateam\nPin-Priority: 1001' > /etc/apt/preferences.d/mozilla-firefox \
+    && apt-get update \
+    && apt-get install -y firefox \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install geckodriver for Selenium
+ARG GECKODRIVER_VERSION=v0.35.0
+RUN wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz && \
+    tar -xzf geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz && \
+    chmod +x geckodriver && \
+    mv geckodriver /usr/local/bin/ && \
+    rm geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
+
+# Set environment variables for headless Firefox
+ENV MOZ_HEADLESS=1
+ENV DISPLAY=:99
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
@@ -23,9 +52,12 @@ RUN make web2py
 
 RUN uv sync
 
+# Install test dependencies
+COPY tests/requirements.txt /app/tests/requirements.txt
+RUN uv pip install -r tests/requirements.txt
+
 # Install hivemind binary
-RUN apt-get update && apt-get install -y curl && \
-    curl -L -o /tmp/hivemind.gz https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hivemind-v1.1.0-linux-amd64.gz && \
+RUN curl -L -o /tmp/hivemind.gz https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hivemind-v1.1.0-linux-amd64.gz && \
     gunzip -c /tmp/hivemind.gz > /usr/local/bin/hivemind && \
     chmod +x /usr/local/bin/hivemind && \
     rm -f /tmp/hivemind.gz
@@ -44,6 +76,7 @@ RUN mkdir -p "$PGDATA" && \
 COPY sql_dumps /app/sql_dumps
 RUN sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D "$PGDATA" -w start && \
     sudo -u postgres make db && \
+    sudo -u postgres make test.setup && \
     sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D "$PGDATA" -m fast -w stop
 
 COPY . /app
