@@ -5,6 +5,7 @@ from gluon.contrib.markdown import WIKI
 from gluon.http import HTTP  # type: ignore
 
 from models.recommendation import Recommendation
+from models.review import Review
 
 class EvaluationType(Enum):
     REVIEW = "rev"
@@ -35,6 +36,7 @@ def _decode_evaluation_doi(path: str):
 
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request):
+    recommendation = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
     match decoded_request["evaluation_type"]:
         case EvaluationType.DECISION:
             if decoded_request["evaluation_number"] != "":
@@ -49,13 +51,12 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
                 decoded_request["recommendation_doi"], decoded_request["round_number"]
             )
         case EvaluationType.REVIEW:
-            return db.get_review_text(
-                decoded_request["recommendation_doi"],
-                decoded_request["round_number"],
-                decoded_request["evaluation_number"],
-            )
+            reviewsForRecommendationDescending = Review.get_by_recommendation_id(recommendation.id)
+            reviewLocationInTheArray = int(decoded_request["evaluation_number"]) - 1
+            relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
+            return relevantReview.review
+
         case EvaluationType.RECOMMENDATION:
-            recommendation = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
             if recommendation == None:
                 return None
             return recommendation.recommendation_comments
