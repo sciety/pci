@@ -1080,34 +1080,6 @@ def get_author_response_text(recommendation_doi, review_round_number):
 
 db.get_author_response_text = get_author_response_text
 
-def get_review_text(recommendation_doi, review_round_number, review_number):
-    rec_rows = db(
-        db.t_recommendations.recommendation_doi == recommendation_doi
-    ).select(
-        db.t_recommendations.id,
-        orderby=db.t_recommendations.id,
-        limitby=(int(review_round_number) - 1, int(review_round_number))
-    ).as_list()
-    if len(rec_rows) != 1:
-        return None
-
-    recommendation_id = rec_rows[0]['id']
-    review_text = db(
-        db.t_reviews.recommendation_id == recommendation_id
-    ).select(
-        db.t_reviews.review,
-        orderby=db.t_reviews.id,
-        limitby=(int(review_number) - 1, int(review_number))
-    ).as_list()
-
-    if len(review_text) != 1:
-        return None
-
-    return review_text[0]['review']
-
-db.get_review_text = get_review_text
-
-
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
     & (db.t_articles.id == db.t_recommendations.article_id)
