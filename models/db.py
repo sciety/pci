@@ -1052,6 +1052,95 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
+def get_relevant_reviews_text():
+    articleId = db.executesql("""
+        SELECT id FROM t_articles
+        WHERE doi = 'https://doi.org/10.1101/2024.12.15.628567'
+    """, as_dict=False)[0][0]
+
+    recommendationId = db.executesql("""
+        SELECT id FROM t_recommendations
+        WHERE article_id = {id}
+    """.format(id=articleId), as_dict=False)[0][0]
+
+    relevantReviewsText = db.executesql("""
+        SELECT review FROM t_reviews
+        WHERE recommendation_id = {id}
+    """.format(id=recommendationId), as_dict=True)
+
+    return relevantReviewsText
+
+db.get_relevant_reviews_text = get_relevant_reviews_text
+
+def get_recommendation_text(recommendation_doi):
+    print('here we go', recommendation_doi)
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.recommendation_comments,
+        orderby=db.t_recommendations.id
+    ).as_list()
+    if len(rec_rows) == 0:
+        return None
+    return rec_rows[-1]['recommendation_comments']
+
+db.get_recommendation_text = get_recommendation_text
+
+def get_decision_text(recommendation_doi, review_round_number):
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.recommendation_comments,
+        orderby=db.t_recommendations.id,
+        limitby=(int(review_round_number) - 1, int(review_round_number))
+    ).as_list()
+    if len(rec_rows) != 1:
+        return None
+    return rec_rows[0]['recommendation_comments']
+
+db.get_decision_text = get_decision_text
+
+def get_author_response_text(recommendation_doi, review_round_number):
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.reply,
+        orderby=db.t_recommendations.id,
+        limitby=(int(review_round_number) - 1, int(review_round_number))
+    )
+    if len(rec_rows) != 1:
+        return None
+    return rec_rows[0]['reply']
+
+db.get_author_response_text = get_author_response_text
+
+def get_review_text(recommendation_doi, review_round_number, review_number):
+    rec_rows = db(
+        db.t_recommendations.recommendation_doi == recommendation_doi
+    ).select(
+        db.t_recommendations.id,
+        orderby=db.t_recommendations.id,
+        limitby=(int(review_round_number) - 1, int(review_round_number))
+    ).as_list()
+    if len(rec_rows) != 1:
+        return None
+
+    recommendation_id = rec_rows[0]['id']
+    review_text = db(
+        db.t_reviews.recommendation_id == recommendation_id
+    ).select(
+        db.t_reviews.review,
+        orderby=db.t_reviews.id,
+        limitby=(int(review_number) - 1, int(review_number))
+    ).as_list()
+
+    if len(review_text) != 1:
+        return None
+
+    return review_text[0]['review']
+
+db.get_review_text = get_review_text
+
 
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
