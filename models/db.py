@@ -1052,26 +1052,6 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
-def get_relevant_reviews_text():
-    articleId = db.executesql("""
-        SELECT id FROM t_articles
-        WHERE doi = 'https://doi.org/10.1101/2024.12.15.628567'
-    """, as_dict=False)[0][0]
-
-    recommendationId = db.executesql("""
-        SELECT id FROM t_recommendations
-        WHERE article_id = {id}
-    """.format(id=articleId), as_dict=False)[0][0]
-
-    relevantReviewsText = db.executesql("""
-        SELECT review FROM t_reviews
-        WHERE recommendation_id = {id}
-    """.format(id=recommendationId), as_dict=True)
-
-    return relevantReviewsText
-
-db.get_relevant_reviews_text = get_relevant_reviews_text
-
 def get_decision_text(recommendation_doi, review_round_number):
     rec_rows = db(
         db.t_recommendations.recommendation_doi == recommendation_doi
