@@ -4,6 +4,7 @@ from enum import Enum
 from gluon.contrib.markdown import WIKI
 from gluon.http import HTTP  # type: ignore
 
+from models.recommendation import Recommendation
 
 class EvaluationType(Enum):
     REVIEW = "rev"
@@ -54,7 +55,10 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
                 decoded_request["evaluation_number"],
             )
         case EvaluationType.RECOMMENDATION:
-            return db.get_recommendation_text(decoded_request["recommendation_doi"])
+            recommendation = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
+            if recommendation == None:
+                return None
+            return recommendation.recommendation_comments
     return None
 
 
