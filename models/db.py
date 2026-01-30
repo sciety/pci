@@ -1072,20 +1072,6 @@ def get_relevant_reviews_text():
 
 db.get_relevant_reviews_text = get_relevant_reviews_text
 
-def get_recommendation_text(recommendation_doi):
-    print('here we go', recommendation_doi)
-    rec_rows = db(
-        db.t_recommendations.recommendation_doi == recommendation_doi
-    ).select(
-        db.t_recommendations.recommendation_comments,
-        orderby=db.t_recommendations.id
-    ).as_list()
-    if len(rec_rows) == 0:
-        return None
-    return rec_rows[-1]['recommendation_comments']
-
-db.get_recommendation_text = get_recommendation_text
-
 def get_decision_text(recommendation_doi, review_round_number):
     rec_rows = db(
         db.t_recommendations.recommendation_doi == recommendation_doi
