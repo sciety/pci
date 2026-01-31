@@ -57,7 +57,7 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
             reviewLocationInTheArray = int(decoded_request["evaluation_number"]) - 1
             relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
             return relevantReview.review
-
+        
         case EvaluationType.RECOMMENDATION:
             return recommendation.recommendation_comments
     return None
