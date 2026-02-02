@@ -1052,20 +1052,6 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
-def get_author_response_text(recommendation_doi, review_round_number):
-    rec_rows = db(
-        db.t_recommendations.recommendation_doi == recommendation_doi
-    ).select(
-        db.t_recommendations.reply,
-        orderby=db.t_recommendations.id,
-        limitby=(int(review_round_number) - 1, int(review_round_number))
-    )
-    if len(rec_rows) != 1:
-        return None
-    return rec_rows[0]['reply']
-
-db.get_author_response_text = get_author_response_text
-
 db.pending_scheduled_submissions_query = (
     db.t_articles.status.belongs(("Scheduled submission pending",))
     & (db.t_articles.id == db.t_recommendations.article_id)
