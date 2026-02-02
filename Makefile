@@ -170,6 +170,7 @@ build:
 dev: build
 	docker kill pci || echo "No pci container running"
 	docker run --rm -d --name pci -p 8080:8000 pci
+	docker exec -i pci psql -U postgres -d main -f /dev/stdin < sql_dumps/additional_test_data_insert.psql
 	docker attach pci
 
 watch:
