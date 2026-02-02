@@ -106,20 +106,20 @@ test.full test.basic test.medium test.scheduled-track: test.clean
 
 
 test.create-article:
-	cd tests ; uv run pytest -k "basic and User_submits"
+	cd tests ; pytest -k "basic and User_submits"
 
 test.review.registered-user:
-	cd tests; uv run pytest -v -k "review_article and Reviewer"
+	cd tests; pytest -v -k "review_article and Reviewer"
 
 test.review.external:
-	cd tests; uv run pytest -v -k "review_article and External"
+	cd tests; pytest -v -k "review_article and External"
 
 test.review.no-upload:
 	cd tests; RR_SCHEDULED_TRACK=1 \
-	uv run pytest -v -k "review_article and Reviewer"
+	pytest -v -k "review_article and Reviewer"
 
 test_%:
-	(cd tests; uv run pytest -xv $@)
+	(cd tests; pytest -xv $@)
 
 delete.external.user:
 	$(psql) main -c "delete from auth_user where first_name='Titi';"
@@ -167,30 +167,11 @@ check.static:
 build:
 	docker build -t pci .
 
-dev: build
-	docker kill pci || echo "No pci container running"
-	docker run --rm -d --name pci -p 8080:8000 pci
-	docker exec -i pci psql -U postgres -d main -f /dev/stdin < sql_dumps/additional_test_data_insert.psql
-	docker attach pci
-
-watch:
-	find . -type f | grep '.py' | entr -r make dev
-
-# Docker test targets
-test.docker.reset:
-	docker exec pci make test.reset
-
-test.docker.basic:
-	docker exec pci make test.basic
-
-test.docker.medium:
-	docker exec pci make test.medium
-
-test.docker.full:
-	docker exec pci make test.full
-
-test.docker.pytest:
-	docker exec pci sh -c "cd tests && pytest $(ARGS)"
+dev:
+	:
+	: use ^C to quit
+	:
+	docker run --rm -it -p 8001:8001 -v `pwd`:/pci pci
 
 log:
 	@git log --merges --format=%s \
