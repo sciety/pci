@@ -1052,20 +1052,6 @@ def get_last_recomms():
 
 db.get_last_recomms = get_last_recomms
 
-def get_decision_text(recommendation_doi, review_round_number):
-    rec_rows = db(
-        db.t_recommendations.recommendation_doi == recommendation_doi
-    ).select(
-        db.t_recommendations.recommendation_comments,
-        orderby=db.t_recommendations.id,
-        limitby=(int(review_round_number) - 1, int(review_round_number))
-    ).as_list()
-    if len(rec_rows) != 1:
-        return None
-    return rec_rows[0]['recommendation_comments']
-
-db.get_decision_text = get_decision_text
-
 def get_author_response_text(recommendation_doi, review_round_number):
     rec_rows = db(
         db.t_recommendations.recommendation_doi == recommendation_doi
