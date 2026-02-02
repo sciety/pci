@@ -177,6 +177,7 @@ watch:
 	find . -type f | grep '.py' | entr -r make dev
 
 # Docker test targets
+
 test.docker.reset:
 	docker exec pci make test.reset
 
@@ -189,7 +190,10 @@ test.docker.medium:
 test.docker.full:
 	docker exec pci make test.full
 
-test.docker.pytest:
+test.docker.unittest:
+	docker run --rm pci bash -c "PYTHONPATH=.:modules uv run pytest controllers"
+
+test.docker.selenium:
 	docker exec pci sh -c "cd tests && pytest $(ARGS)"
 
 log:

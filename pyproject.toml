@@ -25,3 +25,8 @@ dependencies = [
     "yatl",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
