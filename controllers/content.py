@@ -44,9 +44,9 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
         case EvaluationType.DECISION:
             if decoded_request["evaluation_number"] != "":
                 raise HTTP(400, "Invalid DOI")
-            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
-            if reviewRoundDecision == None:
+            if len(recommendations) < int(decoded_request["round_number"]):
                 return None
+            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
             return reviewRoundDecision.recommendation_comments
 
         case EvaluationType.AUTHOR_RESPONSE:
