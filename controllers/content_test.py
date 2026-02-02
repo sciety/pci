@@ -96,7 +96,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
         assert result is None
 
-    def test_foo(
+    def test_should_raise_exception_for_decisions_that_have_evaluation_number(
         self,
         recommendation_mock: MagicMock,
     ):
