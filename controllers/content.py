@@ -36,15 +36,15 @@ def _decode_evaluation_doi(path: str):
 
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request):
-    recommendation = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
-    lastRecommendation = recommendation[-1]
-    if recommendation == None:
+    recommendations = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
+    lastRecommendation = recommendations[-1]
+    if recommendations == None:
         return None
     match decoded_request["evaluation_type"]:
         case EvaluationType.DECISION:
             if decoded_request["evaluation_number"] != "":
                 raise HTTP(400, "Invalid DOI")
-            reviewRoundDecision = recommendation[int(decoded_request["round_number"]) - 1]
+            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
             if reviewRoundDecision == None:
                 return None
             return reviewRoundDecision.recommendation_comments
@@ -52,18 +52,18 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
         case EvaluationType.AUTHOR_RESPONSE:
             if decoded_request["evaluation_number"] != "":
                 raise HTTP(400, "Invalid DOI")
-            reviewRoundDecision = recommendation[int(decoded_request["round_number"]) - 1]
+            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
             if reviewRoundDecision == None:
                 return None
             return reviewRoundDecision.reply
 
         case EvaluationType.REVIEW:
-            relevantRecommendation = recommendation[int(decoded_request["round_number"]) - 1]
+            relevantRecommendation = recommendations[int(decoded_request["round_number"]) - 1]
             reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
             reviewLocationInTheArray = int(decoded_request["evaluation_number"]) - 1
             relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
             return relevantReview.review
-        
+
         case EvaluationType.RECOMMENDATION:
             return lastRecommendation.recommendation_comments
     return None
