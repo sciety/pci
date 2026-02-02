@@ -37,9 +37,9 @@ def _decode_evaluation_doi(path: str):
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request):
     recommendations = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
-    lastRecommendation = recommendations[-1]
-    if recommendations == None:
+    if not recommendations:
         return None
+    lastRecommendation = recommendations[-1]
     match decoded_request["evaluation_type"]:
         case EvaluationType.DECISION:
             if decoded_request["evaluation_number"] != "":
