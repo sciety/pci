@@ -1,4 +1,5 @@
-from typing import Iterator
+from dataclasses import dataclass
+from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,6 +11,10 @@ from controllers.content import (
     _decode_evaluation_doi,
     _get_markdown_content_based_on_evaluation_type,
 )
+
+@dataclass(frozen=True)
+class RecommendationMock:
+    recommendation_comments: Optional[str] = None
 
 test_cases = [
     {
@@ -126,4 +131,24 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         )
         recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
         assert result is None
+
+    def test_recommendation_comments_of_rounds_before_the_last_are_the_decision_content(
+        self,
+        recommendation_mock: MagicMock,
+    ):
+        recommendation_mock.get_by_doi.return_value = [
+            RecommendationMock(), 
+            RecommendationMock(recommendation_comments="Foo bar"),
+            RecommendationMock()
+        ]
+        result = _get_markdown_content_based_on_evaluation_type(
+            {
+                "recommendation_doi": "10.1234/xyz",
+                "evaluation_type": EvaluationType.DECISION,
+                "round_number": "2",
+                "evaluation_number": "",
+            }
+        )
+        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+        assert result is "Foo bar"
 
