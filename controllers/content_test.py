@@ -73,6 +73,20 @@ def test_decode_evaluation_doi(case):
 
 
 class TestGetMarkdownContentBasedOnEvaluationType:
+    def test_should_pass_doi_to_get_by_doi_function(
+        self,
+        recommendation_mock: MagicMock,
+    ):
+        _get_markdown_content_based_on_evaluation_type(
+            {
+                "recommendation_doi": "10.1234/xyz",
+                "evaluation_type": ANY_EVALUATION_TYPE,
+                "round_number": "1",
+                "evaluation_number": "2",
+            }
+        )
+        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+
     def test_should_return_none_if_there_are_no_recommendations_expressed_as_none(
         self,
         recommendation_mock: MagicMock,
@@ -86,7 +100,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "evaluation_number": "2",
             }
         )
-        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
         assert result is None
 
     def test_should_return_none_if_there_are_no_recommendations_expressed_as_an_empty_list(
@@ -102,7 +115,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "evaluation_number": "2",
             }
         )
-        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
         assert result is None
 
     class TestDecisionType:
@@ -134,7 +146,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_number": "",
                 }
             )
-            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result is None
 
         def test_recommendation_comments_of_rounds_before_the_last_are_the_decision_content(
@@ -154,7 +165,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_number": "",
                 }
             )
-            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result == "Foo bar"
     
     class TestAuthorResponseType:
@@ -186,7 +196,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_number": "",
                 }
             )
-            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result is None
 
         def test_recommendation_comments_of_rounds_before_the_last_are_the_author_response_content(
@@ -206,7 +215,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_number": "",
                 }
             )
-            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result == "Foo bar"
 
     class TestReviewType:
@@ -223,5 +231,4 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_number": "1",
                 }
             )
-            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result is None
