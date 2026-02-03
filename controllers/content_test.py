@@ -33,7 +33,7 @@ test_cases = [
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.REVIEW,
             "round_number": 1,
-            "evaluation_number": "2",
+            "evaluation_number": 2,
         },
     },
     {
@@ -42,7 +42,7 @@ test_cases = [
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.DECISION,
             "round_number": 1,
-            "evaluation_number": "",
+            "evaluation_number": None,
         },
     },
     {
@@ -51,7 +51,7 @@ test_cases = [
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
             "round_number": 3,
-            "evaluation_number": "",
+            "evaluation_number": None,
         },
     },
     {
@@ -94,7 +94,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
                 "round_number": 1,
-                "evaluation_number": "2",
+                "evaluation_number": 2,
             }
         )
         recommendation_class_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
@@ -109,7 +109,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
                 "round_number": 1,
-                "evaluation_number": "2",
+                "evaluation_number": 2,
             }
         )
         assert result is None
@@ -124,7 +124,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
                 "round_number": 1,
-                "evaluation_number": "2",
+                "evaluation_number": 2,
             }
         )
         assert result is None
@@ -155,7 +155,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.DECISION,
                     "round_number": 2,
-                    "evaluation_number": "",
+                    "evaluation_number": None,
                 }
             )
             assert result is None
@@ -174,7 +174,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.DECISION,
                     "round_number": 2,
-                    "evaluation_number": "",
+                    "evaluation_number": None,
                 }
             )
             assert result == "Foo bar"
@@ -191,7 +191,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                         "recommendation_doi": "10.1234/xyz",
                         "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
                         "round_number": 1,
-                        "evaluation_number": "2",
+                        "evaluation_number": 2,
                     }
                 )
 
@@ -205,7 +205,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
                     "round_number": 2,
-                    "evaluation_number": "",
+                    "evaluation_number": None,
                 }
             )
             assert result is None
@@ -224,7 +224,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
                     "round_number": 2,
-                    "evaluation_number": "",
+                    "evaluation_number": None,
                 }
             )
             assert result == "Foo bar"
@@ -241,7 +241,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                         "recommendation_doi": "10.1234/xyz",
                         "evaluation_type": EvaluationType.REVIEW,
                         "round_number": 2,
-                        "evaluation_number": "",
+                        "evaluation_number": None,
                     }
                 )
 
@@ -274,7 +274,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.REVIEW,
                     "round_number": 1,
-                    "evaluation_number": "2",
+                    "evaluation_number": 2,
                 }
             )
             assert result is None
@@ -296,7 +296,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.REVIEW,
                     "round_number": 1,
-                    "evaluation_number": "2",
+                    "evaluation_number": 2,
                 }
             )
             assert result == "Second review"
@@ -316,7 +316,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.RECOMMENDATION,
                     "round_number": "",
-                    "evaluation_number": "",   
+                    "evaluation_number": None,   
                 }
             )
             assert result == "Final recommendation content"

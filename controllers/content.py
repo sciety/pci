@@ -18,7 +18,7 @@ class DecodedRequestTypedDict(TypedDict):
     recommendation_doi: str
     evaluation_type: EvaluationType
     round_number: Optional[int]
-    evaluation_number: Optional[str]
+    evaluation_number: Optional[int]
 
 
 # We assume there are never more than nine review rounds
@@ -38,7 +38,11 @@ def _decode_evaluation_doi(path: str) -> DecodedRequestTypedDict:
         "recommendation_doi": recommendation_doi,
         "evaluation_type": EvaluationType(evaluation_type),
         "round_number": int(round_number),
-        "evaluation_number": evaluation_number,
+        "evaluation_number": (
+            int(evaluation_number)
+            if evaluation_number
+            else None
+        ),
     }
 
 
@@ -49,7 +53,7 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
     lastRecommendation = recommendations[-1]
     match decoded_request["evaluation_type"]:
         case EvaluationType.DECISION:
-            if decoded_request["evaluation_number"] != "":
+            if decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request["round_number"]:
                 return None
@@ -57,7 +61,7 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
             return reviewRoundDecision.recommendation_comments
 
         case EvaluationType.AUTHOR_RESPONSE:
-            if decoded_request["evaluation_number"] != "":
+            if decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request["round_number"]:
                 return None
@@ -71,9 +75,9 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
                 return None
             relevantRecommendation = recommendations[decoded_request["round_number"] - 1]
             reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
-            if len(reviewsForRecommendationDescending) < int(decoded_request["evaluation_number"]):
+            if len(reviewsForRecommendationDescending) < decoded_request["evaluation_number"]:
                 return None
-            reviewLocationInTheArray = int(decoded_request["evaluation_number"]) - 1
+            reviewLocationInTheArray = decoded_request["evaluation_number"] - 1
             relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
             
             return relevantReview.review
