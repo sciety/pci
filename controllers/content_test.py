@@ -16,6 +16,9 @@ from controllers.content import (
 class RecommendationMock:
     recommendation_comments: Optional[str] = None
 
+
+ANY_EVALUATION_TYPE = EvaluationType.REVIEW
+
 test_cases = [
     {
         "path": "10.1234/xyz.rev12",
@@ -77,7 +80,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         result = _get_markdown_content_based_on_evaluation_type(
             {
                 "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": EvaluationType.REVIEW,
+                "evaluation_type": ANY_EVALUATION_TYPE,
                 "round_number": "1",
                 "evaluation_number": "2",
             }
@@ -93,7 +96,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         result = _get_markdown_content_based_on_evaluation_type(
             {
                 "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": EvaluationType.REVIEW,
+                "evaluation_type": ANY_EVALUATION_TYPE,
                 "round_number": "1",
                 "evaluation_number": "2",
             }
@@ -101,54 +104,55 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
         assert result is None
 
-    def test_should_raise_exception_for_decisions_that_have_evaluation_number(
-        self,
-        recommendation_mock: MagicMock,
-    ):
-        recommendation_mock.get_by_doi.return_value = [{}]
-        with pytest.raises(HTTP):
-            _get_markdown_content_based_on_evaluation_type(
+    class TestDecisionType:
+        def test_should_raise_exception_for_decisions_that_have_evaluation_number(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [{}]
+            with pytest.raises(HTTP):
+                _get_markdown_content_based_on_evaluation_type(
+                    {
+                        "recommendation_doi": "10.1234/xyz",
+                        "evaluation_type": EvaluationType.DECISION,
+                        "round_number": "1",
+                        "evaluation_number": "3",
+                    }
+                )
+        
+        def test_requested_round_does_not_exist(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [{}]
+            result = _get_markdown_content_based_on_evaluation_type(
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.DECISION,
-                    "round_number": "1",
-                    "evaluation_number": "3",
+                    "round_number": "2",
+                    "evaluation_number": "",
                 }
             )
-    
-    def test_requested_round_does_not_exist(
-        self,
-        recommendation_mock: MagicMock,
-    ):
-        recommendation_mock.get_by_doi.return_value = [{}]
-        result = _get_markdown_content_based_on_evaluation_type(
-            {
-                "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": EvaluationType.DECISION,
-                "round_number": "2",
-                "evaluation_number": "",
-            }
-        )
-        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
-        assert result is None
+            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+            assert result is None
 
-    def test_recommendation_comments_of_rounds_before_the_last_are_the_decision_content(
-        self,
-        recommendation_mock: MagicMock,
-    ):
-        recommendation_mock.get_by_doi.return_value = [
-            RecommendationMock(), 
-            RecommendationMock(recommendation_comments="Foo bar"),
-            RecommendationMock()
-        ]
-        result = _get_markdown_content_based_on_evaluation_type(
-            {
-                "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": EvaluationType.DECISION,
-                "round_number": "2",
-                "evaluation_number": "",
-            }
-        )
-        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
-        assert result is "Foo bar"
+        def test_recommendation_comments_of_rounds_before_the_last_are_the_decision_content(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [
+                RecommendationMock(), 
+                RecommendationMock(recommendation_comments="Foo bar"),
+                RecommendationMock()
+            ]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.DECISION,
+                    "round_number": "2",
+                    "evaluation_number": "",
+                }
+            )
+            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+            assert result is "Foo bar"
 
