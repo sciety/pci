@@ -53,6 +53,8 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
     lastRecommendation = recommendations[-1]
     match decoded_request["evaluation_type"]:
         case EvaluationType.DECISION:
+            if not decoded_request["round_number"]:
+                raise HTTP(400, "Invalid DOI due to missing round number")
             if decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request["round_number"]:
@@ -61,6 +63,8 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
             return reviewRoundDecision.recommendation_comments
 
         case EvaluationType.AUTHOR_RESPONSE:
+            if not decoded_request["round_number"]:
+                raise HTTP(400, "Invalid DOI due to missing round number")
             if decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request["round_number"]:
@@ -69,6 +73,8 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
             return reviewRoundDecision.reply
 
         case EvaluationType.REVIEW:
+            if not decoded_request["round_number"]:
+                raise HTTP(400, "Invalid DOI due to missing round number")
             if not decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI due to missing evaluation number")
             if len(recommendations) < decoded_request["round_number"]:
