@@ -16,6 +16,7 @@ from controllers.content import (
 class RecommendationMock:
     recommendation_comments: Optional[str] = None
     reply: Optional[str] = None
+    id: int = 1
 
 
 ANY_EVALUATION_TYPE = EvaluationType.REVIEW
@@ -63,6 +64,12 @@ test_cases = [
 @pytest.fixture(name="recommendation_mock")
 def _recommendation_mock() -> Iterator[MagicMock]:
     with patch.object(controllers_module, "Recommendation") as mock:
+        yield mock
+
+
+@pytest.fixture(name="review_mock")
+def _review_mock() -> Iterator[MagicMock]:
+    with patch.object(controllers_module, "Review") as mock:
         yield mock
 
 
@@ -244,6 +251,25 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     "evaluation_type": EvaluationType.REVIEW,
                     "round_number": "2",
                     "evaluation_number": "1",
+                }
+            )
+            assert result is None
+
+        def test_should_return_none_if_requested_evaluation_number_does_not_exist(
+            self,
+            recommendation_mock: MagicMock,
+            review_mock: MagicMock
+        ):
+            recommendation_mock.get_by_doi.return_value = [
+                RecommendationMock(id=2)
+            ]
+            review_mock.get_by_recommendation_id.return_value = [{}]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.REVIEW,
+                    "round_number": "1",
+                    "evaluation_number": "2",
                 }
             )
             assert result is None

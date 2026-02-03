@@ -64,8 +64,11 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
                 return None
             relevantRecommendation = recommendations[int(decoded_request["round_number"]) - 1]
             reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
+            if len(reviewsForRecommendationDescending) < int(decoded_request["evaluation_number"]):
+                return None
             reviewLocationInTheArray = int(decoded_request["evaluation_number"]) - 1
             relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
+            
             return relevantReview.review
 
         case EvaluationType.RECOMMENDATION:
