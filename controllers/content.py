@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import re
 from enum import Enum
 from typing import Optional, TypedDict
@@ -14,7 +15,8 @@ class EvaluationType(Enum):
     AUTHOR_RESPONSE = "ar"
     RECOMMENDATION = "recommendation"
 
-class DecodedRequestTypedDict(TypedDict):
+@dataclass(frozen=True)
+class DecodedRequest:
     recommendation_doi: str
     evaluation_type: EvaluationType
     round_number: Optional[int]
@@ -22,10 +24,10 @@ class DecodedRequestTypedDict(TypedDict):
 
 
 # We assume there are never more than nine review rounds
-def _decode_evaluation_doi(path: str) -> DecodedRequestTypedDict:
+def _decode_evaluation_doi(path: str) -> DecodedRequest:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)(\d*)$", path)
     if not match:
-        return dict(
+        return DecodedRequest(
             recommendation_doi=path,
             evaluation_type=EvaluationType("recommendation"),
             round_number=None,
@@ -34,56 +36,56 @@ def _decode_evaluation_doi(path: str) -> DecodedRequestTypedDict:
     recommendation_doi, evaluation_type, round_number, evaluation_number = (
         match.groups()
     )
-    return {
-        "recommendation_doi": recommendation_doi,
-        "evaluation_type": EvaluationType(evaluation_type),
-        "round_number": int(round_number),
-        "evaluation_number": (
+    return DecodedRequest(
+        recommendation_doi=recommendation_doi,
+        evaluation_type=EvaluationType(evaluation_type),
+        round_number=int(round_number),
+        evaluation_number=(
             int(evaluation_number)
             if evaluation_number
             else None
         ),
-    }
+    )
 
 
-def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequestTypedDict):
-    recommendations = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
+def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequest):
+    recommendations = Recommendation.get_by_doi(decoded_request.recommendation_doi)
     if not recommendations:
         return None
     lastRecommendation = recommendations[-1]
-    match decoded_request["evaluation_type"]:
+    match decoded_request.evaluation_type:
         case EvaluationType.DECISION:
-            if not decoded_request["round_number"]:
+            if not decoded_request.round_number:
                 raise HTTP(400, "Invalid DOI due to missing round number")
-            if decoded_request["evaluation_number"]:
+            if decoded_request.evaluation_number:
                 raise HTTP(400, "Invalid DOI")
-            if len(recommendations) < decoded_request["round_number"]:
+            if len(recommendations) < decoded_request.round_number:
                 return None
-            reviewRoundDecision = recommendations[decoded_request["round_number"] - 1]
+            reviewRoundDecision = recommendations[decoded_request.round_number - 1]
             return reviewRoundDecision.recommendation_comments
 
         case EvaluationType.AUTHOR_RESPONSE:
-            if not decoded_request["round_number"]:
+            if not decoded_request.round_number:
                 raise HTTP(400, "Invalid DOI due to missing round number")
-            if decoded_request["evaluation_number"]:
+            if decoded_request.evaluation_number:
                 raise HTTP(400, "Invalid DOI")
-            if len(recommendations) < decoded_request["round_number"]:
+            if len(recommendations) < decoded_request.round_number:
                 return None
-            reviewRoundDecision = recommendations[decoded_request["round_number"] - 1]
+            reviewRoundDecision = recommendations[decoded_request.round_number - 1]
             return reviewRoundDecision.reply
 
         case EvaluationType.REVIEW:
-            if not decoded_request["round_number"]:
+            if not decoded_request.round_number:
                 raise HTTP(400, "Invalid DOI due to missing round number")
-            if not decoded_request["evaluation_number"]:
+            if not decoded_request.evaluation_number:
                 raise HTTP(400, "Invalid DOI due to missing evaluation number")
-            if len(recommendations) < decoded_request["round_number"]:
+            if len(recommendations) < decoded_request.round_number:
                 return None
-            relevantRecommendation = recommendations[decoded_request["round_number"] - 1]
+            relevantRecommendation = recommendations[decoded_request.round_number - 1]
             reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
-            if len(reviewsForRecommendationDescending) < decoded_request["evaluation_number"]:
+            if len(reviewsForRecommendationDescending) < decoded_request.evaluation_number:
                 return None
-            reviewLocationInTheArray = decoded_request["evaluation_number"] - 1
+            reviewLocationInTheArray = decoded_request.evaluation_number - 1
             relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
             
             return relevantReview.review

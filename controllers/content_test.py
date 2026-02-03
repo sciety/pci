@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -7,6 +7,7 @@ from gluon.http import HTTP  # type: ignore
 
 import controllers.content as controllers_module
 from controllers.content import (
+    DecodedRequest,
     EvaluationType,
     _decode_evaluation_doi,
     _get_markdown_content_based_on_evaluation_type,
@@ -29,39 +30,39 @@ ANY_EVALUATION_TYPE = EvaluationType.REVIEW
 test_cases = [
     {
         "path": "10.1234/xyz.rev12",
-        "expected": {
-            "recommendation_doi": "10.1234/xyz",
-            "evaluation_type": EvaluationType.REVIEW,
-            "round_number": 1,
-            "evaluation_number": 2,
-        },
+        "expected": DecodedRequest(
+            recommendation_doi="10.1234/xyz",
+            evaluation_type=EvaluationType.REVIEW,
+            round_number=1,
+            evaluation_number=2,
+        ),
     },
     {
         "path": "10.1234/xyz.d1",
-        "expected": {
-            "recommendation_doi": "10.1234/xyz",
-            "evaluation_type": EvaluationType.DECISION,
-            "round_number": 1,
-            "evaluation_number": None,
-        },
+        "expected": DecodedRequest(
+            recommendation_doi="10.1234/xyz",
+            evaluation_type=EvaluationType.DECISION,
+            round_number=1,
+            evaluation_number=None,
+        ),
     },
     {
         "path": "10.1234/xyz.ar3",
-        "expected": {
-            "recommendation_doi": "10.1234/xyz",
-            "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-            "round_number": 3,
-            "evaluation_number": None,
-        },
+        "expected": DecodedRequest(
+            recommendation_doi="10.1234/xyz",
+            evaluation_type=EvaluationType.AUTHOR_RESPONSE,
+            round_number=3,
+            evaluation_number=None,
+        ),
     },
     {
         "path": "10.1234/xyz",
-        "expected": {
-            "recommendation_doi": "10.1234/xyz",
-            "evaluation_type": EvaluationType.RECOMMENDATION,
-            "round_number": None,
-            "evaluation_number": None,
-        },
+        "expected": DecodedRequest(
+            recommendation_doi="10.1234/xyz",
+            evaluation_type=EvaluationType.RECOMMENDATION,
+            round_number=None,
+            evaluation_number=None,
+        ),
     },
 ]
 
@@ -90,12 +91,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         recommendation_class_mock: MagicMock,
     ):
         _get_markdown_content_based_on_evaluation_type(
-            {
-                "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": 1,
-                "evaluation_number": 2,
-            }
+            DecodedRequest(
+                recommendation_doi="10.1234/xyz",
+                evaluation_type=ANY_EVALUATION_TYPE,
+                round_number=1,
+                evaluation_number=2,
+            )
         )
         recommendation_class_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
 
@@ -105,12 +106,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     ):
         recommendation_class_mock.get_by_doi.return_value = None
         result = _get_markdown_content_based_on_evaluation_type(
-            {
-                "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": 1,
-                "evaluation_number": 2,
-            }
+            DecodedRequest(
+                recommendation_doi="10.1234/xyz",
+                evaluation_type=ANY_EVALUATION_TYPE,
+                round_number=1,
+                evaluation_number=2,
+            )
         )
         assert result is None
 
@@ -120,12 +121,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     ):
         recommendation_class_mock.get_by_doi.return_value = []
         result = _get_markdown_content_based_on_evaluation_type(
-            {
-                "recommendation_doi": "10.1234/xyz",
-                "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": 1,
-                "evaluation_number": 2,
-            }
+            DecodedRequest(
+                recommendation_doi="10.1234/xyz",
+                evaluation_type=ANY_EVALUATION_TYPE,
+                round_number=1,
+                evaluation_number=2,
+            )
         )
         assert result is None
 
@@ -137,12 +138,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
-                    {
-                        "recommendation_doi": "10.1234/xyz",
-                        "evaluation_type": EvaluationType.DECISION,
-                        "round_number": 1,
-                        "evaluation_number": "3",
-                    }
+                    DecodedRequest(
+                        recommendation_doi="10.1234/xyz",
+                        evaluation_type=EvaluationType.DECISION,
+                        round_number=1,
+                        evaluation_number=3,
+                    )
                 )
         
         def test_requested_round_does_not_exist(
@@ -151,12 +152,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.DECISION,
-                    "round_number": 2,
-                    "evaluation_number": None,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.DECISION,
+                    round_number=2,
+                    evaluation_number=None,
+                )
             )
             assert result is None
 
@@ -170,12 +171,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock()
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.DECISION,
-                    "round_number": 2,
-                    "evaluation_number": None,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.DECISION,
+                    round_number=2,
+                    evaluation_number=None,
+                )
             )
             assert result == "Foo bar"
     
@@ -187,12 +188,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
-                    {
-                        "recommendation_doi": "10.1234/xyz",
-                        "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                        "round_number": 1,
-                        "evaluation_number": 2,
-                    }
+                    DecodedRequest(
+                        recommendation_doi="10.1234/xyz",
+                        evaluation_type=EvaluationType.AUTHOR_RESPONSE,
+                        round_number=1,
+                        evaluation_number=2,
+                    )
                 )
 
         def test_should_return_none_if_requested_round_does_not_exist(
@@ -201,12 +202,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                    "round_number": 2,
-                    "evaluation_number": None,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.AUTHOR_RESPONSE,
+                    round_number=2,
+                    evaluation_number=None,
+                )
             )
             assert result is None
 
@@ -220,12 +221,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock()
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                    "round_number": 2,
-                    "evaluation_number": None,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.AUTHOR_RESPONSE,
+                    round_number=2,
+                    evaluation_number=None,
+                )
             )
             assert result == "Foo bar"
 
@@ -237,12 +238,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
-                    {
-                        "recommendation_doi": "10.1234/xyz",
-                        "evaluation_type": EvaluationType.REVIEW,
-                        "round_number": 2,
-                        "evaluation_number": None,
-                    }
+                    DecodedRequest(
+                        recommendation_doi="10.1234/xyz",
+                        evaluation_type=EvaluationType.REVIEW,
+                        round_number=2,
+                        evaluation_number=None,
+                    )
                 )
 
         def test_should_return_none_if_requested_round_does_not_exist(
@@ -251,12 +252,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": 2,
-                    "evaluation_number": "1",
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.REVIEW,
+                    round_number=2,
+                    evaluation_number=1,
+                )
             )
             assert result is None
 
@@ -270,12 +271,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             ]
             review_class_mock.get_by_recommendation_id.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": 1,
-                    "evaluation_number": 2,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.REVIEW,
+                    round_number=1,
+                    evaluation_number=2,
+                )
             )
             assert result is None
 
@@ -292,12 +293,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 ReviewMock(review="Second review"),
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": 1,
-                    "evaluation_number": 2,
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.REVIEW,
+                    round_number=1,
+                    evaluation_number=2,
+                )
             )
             assert result == "Second review"
 
@@ -312,11 +313,11 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock(recommendation_comments="Final recommendation content"),
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                {
-                    "recommendation_doi": "10.1234/xyz",
-                    "evaluation_type": EvaluationType.RECOMMENDATION,
-                    "round_number": "",
-                    "evaluation_number": None,   
-                }
+                DecodedRequest(
+                    recommendation_doi="10.1234/xyz",
+                    evaluation_type=EvaluationType.RECOMMENDATION,
+                    round_number=None,
+                    evaluation_number=None,   
+                )
             )
             assert result == "Final recommendation content"
