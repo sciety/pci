@@ -72,8 +72,8 @@ def _recommendation_class_mock() -> Iterator[MagicMock]:
         yield mock
 
 
-@pytest.fixture(name="review_mock")
-def _review_mock() -> Iterator[MagicMock]:
+@pytest.fixture(name="review_class_mock")
+def _review_class_mock() -> Iterator[MagicMock]:
     with patch.object(controllers_module, "Review") as mock:
         yield mock
 
@@ -263,12 +263,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         def test_should_return_none_if_requested_evaluation_number_does_not_exist(
             self,
             recommendation_class_mock: MagicMock,
-            review_mock: MagicMock
+            review_class_mock: MagicMock
         ):
             recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(id=2)
             ]
-            review_mock.get_by_recommendation_id.return_value = [{}]
+            review_class_mock.get_by_recommendation_id.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
                 {
                     "recommendation_doi": "10.1234/xyz",
@@ -282,12 +282,12 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         def test_should_return_review_content_of_requested_evaluation_number_and_round_number(
             self,
             recommendation_class_mock: MagicMock,
-            review_mock: MagicMock
+            review_class_mock: MagicMock
         ):
             recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(id=2)
             ]
-            review_mock.get_by_recommendation_id.return_value = [
+            review_class_mock.get_by_recommendation_id.return_value = [
                 ReviewMock(review="First review"),
                 ReviewMock(review="Second review"),
             ]
