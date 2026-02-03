@@ -155,4 +155,19 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             )
             recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result is "Foo bar"
-
+    
+    class TestAuthorResponseType:
+        def test_should_raise_exception_for_author_responses_that_have_evaluation_number(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [{}]
+            with pytest.raises(HTTP):
+                _get_markdown_content_based_on_evaluation_type(
+                    {
+                        "recommendation_doi": "10.1234/xyz",
+                        "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
+                        "round_number": "1",
+                        "evaluation_number": "2",
+                    }
+                )
