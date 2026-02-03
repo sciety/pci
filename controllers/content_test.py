@@ -208,3 +208,20 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             )
             recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result == "Foo bar"
+
+    class TestReviewType:
+        def test_should_return_none_if_requested_round_does_not_exist(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [{}]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.REVIEW,
+                    "round_number": "2",
+                    "evaluation_number": "1",
+                }
+            )
+            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+            assert result is None
