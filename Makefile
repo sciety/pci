@@ -190,8 +190,12 @@ test.docker.medium:
 test.docker.full:
 	docker exec pci make test.full
 
-test.docker.unittest: build
-	docker run --rm pci bash -c "PYTHONPATH=.:modules uv run pytest controllers"
+test.docker.unittest:
+	docker run \
+		--rm \
+		--volume $(PWD)/controllers:/app/controllers \
+		pci \
+		bash -c "PYTHONPATH=.:modules uv run pytest controllers"
 
 test.docker.selenium:
 	docker exec pci sh -c "cd tests && pytest $(ARGS)"
