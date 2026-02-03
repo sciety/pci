@@ -300,3 +300,23 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 }
             )
             assert result == "Second review"
+
+        def test_should_return_recommendation_content_when_no_evalation_or_round_number_is_present(
+                self,
+                recommendation_class_mock: MagicMock,
+        ):
+            recommendation_class_mock.get_by_doi.return_value = [
+                RecommendationMock(recommendation_comments="First decision content"),
+                RecommendationMock(recommendation_comments="Second decision content"),
+                RecommendationMock(recommendation_comments="Third decision content"),
+                RecommendationMock(recommendation_comments="Final recommendation content"),
+            ]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.RECOMMENDATION,
+                    "round_number": "",
+                    "evaluation_number": "",   
+                }
+            )
+            assert result == "Final recommendation content"
