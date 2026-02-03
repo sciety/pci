@@ -66,8 +66,8 @@ test_cases = [
 ]
 
 
-@pytest.fixture(name="recommendation_mock")
-def _recommendation_mock() -> Iterator[MagicMock]:
+@pytest.fixture(name="recommendation_class_mock")
+def _recommendation_class_mock() -> Iterator[MagicMock]:
     with patch.object(controllers_module, "Recommendation") as mock:
         yield mock
 
@@ -87,7 +87,7 @@ def test_decode_evaluation_doi(case):
 class TestGetMarkdownContentBasedOnEvaluationType:
     def test_should_pass_doi_to_get_by_doi_function(
         self,
-        recommendation_mock: MagicMock,
+        recommendation_class_mock: MagicMock,
     ):
         _get_markdown_content_based_on_evaluation_type(
             {
@@ -97,13 +97,13 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 "evaluation_number": "2",
             }
         )
-        recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+        recommendation_class_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
 
     def test_should_return_none_if_there_are_no_recommendations_expressed_as_none(
         self,
-        recommendation_mock: MagicMock,
+        recommendation_class_mock: MagicMock,
     ):
-        recommendation_mock.get_by_doi.return_value = None
+        recommendation_class_mock.get_by_doi.return_value = None
         result = _get_markdown_content_based_on_evaluation_type(
             {
                 "recommendation_doi": "10.1234/xyz",
@@ -116,9 +116,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
     def test_should_return_none_if_there_are_no_recommendations_expressed_as_an_empty_list(
         self,
-        recommendation_mock: MagicMock,
+        recommendation_class_mock: MagicMock,
     ):
-        recommendation_mock.get_by_doi.return_value = []
+        recommendation_class_mock.get_by_doi.return_value = []
         result = _get_markdown_content_based_on_evaluation_type(
             {
                 "recommendation_doi": "10.1234/xyz",
@@ -132,9 +132,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     class TestDecisionType:
         def test_should_raise_exception_for_decisions_that_have_evaluation_number(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
                     {
@@ -147,9 +147,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         
         def test_requested_round_does_not_exist(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
                 {
                     "recommendation_doi": "10.1234/xyz",
@@ -162,9 +162,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_recommendation_comments_of_rounds_before_the_last_are_the_decision_content(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [
+            recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(), 
                 RecommendationMock(recommendation_comments="Foo bar"),
                 RecommendationMock()
@@ -182,9 +182,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     class TestAuthorResponseType:
         def test_should_raise_exception_for_author_responses_that_have_evaluation_number(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
                     {
@@ -197,9 +197,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_should_return_none_if_requested_round_does_not_exist(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
                 {
                     "recommendation_doi": "10.1234/xyz",
@@ -212,9 +212,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_recommendation_comments_of_rounds_before_the_last_are_the_author_response_content(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [
+            recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(),
                 RecommendationMock(reply="Foo bar"),
                 RecommendationMock()
@@ -232,9 +232,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     class TestReviewType:
         def test_should_raise_error_if_requested_evaluation_number_is_empty(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             with pytest.raises(HTTP):
                 _get_markdown_content_based_on_evaluation_type(
                     {
@@ -247,9 +247,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_should_return_none_if_requested_round_does_not_exist(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
         ):
-            recommendation_mock.get_by_doi.return_value = [{}]
+            recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
                 {
                     "recommendation_doi": "10.1234/xyz",
@@ -262,10 +262,10 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_should_return_none_if_requested_evaluation_number_does_not_exist(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
             review_mock: MagicMock
         ):
-            recommendation_mock.get_by_doi.return_value = [
+            recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(id=2)
             ]
             review_mock.get_by_recommendation_id.return_value = [{}]
@@ -281,10 +281,10 @@ class TestGetMarkdownContentBasedOnEvaluationType:
 
         def test_should_return_review_content_of_requested_evaluation_number_and_round_number(
             self,
-            recommendation_mock: MagicMock,
+            recommendation_class_mock: MagicMock,
             review_mock: MagicMock
         ):
-            recommendation_mock.get_by_doi.return_value = [
+            recommendation_class_mock.get_by_doi.return_value = [
                 RecommendationMock(id=2)
             ]
             review_mock.get_by_recommendation_id.return_value = [
