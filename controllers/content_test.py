@@ -32,7 +32,7 @@ test_cases = [
         "expected": {
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.REVIEW,
-            "round_number": "1",
+            "round_number": 1,
             "evaluation_number": "2",
         },
     },
@@ -41,7 +41,7 @@ test_cases = [
         "expected": {
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.DECISION,
-            "round_number": "1",
+            "round_number": 1,
             "evaluation_number": "",
         },
     },
@@ -50,7 +50,7 @@ test_cases = [
         "expected": {
             "recommendation_doi": "10.1234/xyz",
             "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-            "round_number": "3",
+            "round_number": 3,
             "evaluation_number": "",
         },
     },
@@ -93,7 +93,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             {
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": "1",
+                "round_number": 1,
                 "evaluation_number": "2",
             }
         )
@@ -108,7 +108,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             {
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": "1",
+                "round_number": 1,
                 "evaluation_number": "2",
             }
         )
@@ -123,7 +123,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             {
                 "recommendation_doi": "10.1234/xyz",
                 "evaluation_type": ANY_EVALUATION_TYPE,
-                "round_number": "1",
+                "round_number": 1,
                 "evaluation_number": "2",
             }
         )
@@ -140,7 +140,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     {
                         "recommendation_doi": "10.1234/xyz",
                         "evaluation_type": EvaluationType.DECISION,
-                        "round_number": "1",
+                        "round_number": 1,
                         "evaluation_number": "3",
                     }
                 )
@@ -154,7 +154,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.DECISION,
-                    "round_number": "2",
+                    "round_number": 2,
                     "evaluation_number": "",
                 }
             )
@@ -173,7 +173,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.DECISION,
-                    "round_number": "2",
+                    "round_number": 2,
                     "evaluation_number": "",
                 }
             )
@@ -190,7 +190,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     {
                         "recommendation_doi": "10.1234/xyz",
                         "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                        "round_number": "1",
+                        "round_number": 1,
                         "evaluation_number": "2",
                     }
                 )
@@ -204,7 +204,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                    "round_number": "2",
+                    "round_number": 2,
                     "evaluation_number": "",
                 }
             )
@@ -223,7 +223,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
-                    "round_number": "2",
+                    "round_number": 2,
                     "evaluation_number": "",
                 }
             )
@@ -240,7 +240,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                     {
                         "recommendation_doi": "10.1234/xyz",
                         "evaluation_type": EvaluationType.REVIEW,
-                        "round_number": "2",
+                        "round_number": 2,
                         "evaluation_number": "",
                     }
                 )
@@ -254,7 +254,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": "2",
+                    "round_number": 2,
                     "evaluation_number": "1",
                 }
             )
@@ -273,7 +273,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": "1",
+                    "round_number": 1,
                     "evaluation_number": "2",
                 }
             )
@@ -295,7 +295,7 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 {
                     "recommendation_doi": "10.1234/xyz",
                     "evaluation_type": EvaluationType.REVIEW,
-                    "round_number": "1",
+                    "round_number": 1,
                     "evaluation_number": "2",
                 }
             )

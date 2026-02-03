@@ -17,7 +17,7 @@ class EvaluationType(Enum):
 class DecodedRequestTypedDict(TypedDict):
     recommendation_doi: str
     evaluation_type: EvaluationType
-    round_number: Optional[str]
+    round_number: Optional[int]
     evaluation_number: Optional[str]
 
 
@@ -34,12 +34,12 @@ def _decode_evaluation_doi(path: str) -> DecodedRequestTypedDict:
     recommendation_doi, evaluation_type, round_number, evaluation_number = (
         match.groups()
     )
-    return dict(
-        recommendation_doi=recommendation_doi,
-        evaluation_type=EvaluationType(evaluation_type),
-        round_number=round_number,
-        evaluation_number=evaluation_number,
-    )
+    return {
+        "recommendation_doi": recommendation_doi,
+        "evaluation_type": EvaluationType(evaluation_type),
+        "round_number": int(round_number),
+        "evaluation_number": evaluation_number,
+    }
 
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequestTypedDict):
@@ -51,25 +51,25 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
         case EvaluationType.DECISION:
             if decoded_request["evaluation_number"] != "":
                 raise HTTP(400, "Invalid DOI")
-            if len(recommendations) < int(decoded_request["round_number"]):
+            if len(recommendations) < decoded_request["round_number"]:
                 return None
-            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
+            reviewRoundDecision = recommendations[decoded_request["round_number"] - 1]
             return reviewRoundDecision.recommendation_comments
 
         case EvaluationType.AUTHOR_RESPONSE:
             if decoded_request["evaluation_number"] != "":
                 raise HTTP(400, "Invalid DOI")
-            if len(recommendations) < int(decoded_request["round_number"]):
+            if len(recommendations) < decoded_request["round_number"]:
                 return None
-            reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
+            reviewRoundDecision = recommendations[decoded_request["round_number"] - 1]
             return reviewRoundDecision.reply
 
         case EvaluationType.REVIEW:
             if not decoded_request["evaluation_number"]:
                 raise HTTP(400, "Invalid DOI due to missing evaluation number")
-            if len(recommendations) < int(decoded_request["round_number"]):
+            if len(recommendations) < decoded_request["round_number"]:
                 return None
-            relevantRecommendation = recommendations[int(decoded_request["round_number"]) - 1]
+            relevantRecommendation = recommendations[decoded_request["round_number"] - 1]
             reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
             if len(reviewsForRecommendationDescending) < int(decoded_request["evaluation_number"]):
                 return None
