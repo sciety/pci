@@ -15,6 +15,7 @@ from controllers.content import (
 @dataclass(frozen=True)
 class RecommendationMock:
     recommendation_comments: Optional[str] = None
+    reply: Optional[str] = None
 
 
 ANY_EVALUATION_TYPE = EvaluationType.REVIEW
@@ -187,3 +188,23 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             )
             recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
             assert result is None
+
+        def test_recommendation_comments_of_rounds_before_the_last_are_the_author_response_content(
+            self,
+            recommendation_mock: MagicMock,
+        ):
+            recommendation_mock.get_by_doi.return_value = [
+                RecommendationMock(),
+                RecommendationMock(reply="Foo bar"),
+                RecommendationMock()
+            ]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.AUTHOR_RESPONSE,
+                    "round_number": "2",
+                    "evaluation_number": "",
+                }
+            )
+            recommendation_mock.get_by_doi.assert_called_once_with("10.1234/xyz")
+            assert result == "Foo bar"
