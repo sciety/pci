@@ -19,6 +19,11 @@ class RecommendationMock:
     id: int = 1
 
 
+@dataclass(frozen=True)
+class ReviewMock:
+    review: Optional[str] = None
+
+
 ANY_EVALUATION_TYPE = EvaluationType.REVIEW
 
 test_cases = [
@@ -273,3 +278,25 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 }
             )
             assert result is None
+
+        def test_should_return_review_content_of_requested_evaluation_number_and_round_number(
+            self,
+            recommendation_mock: MagicMock,
+            review_mock: MagicMock
+        ):
+            recommendation_mock.get_by_doi.return_value = [
+                RecommendationMock(id=2)
+            ]
+            review_mock.get_by_recommendation_id.return_value = [
+                ReviewMock(review="First review"),
+                ReviewMock(review="Second review"),
+            ]
+            result = _get_markdown_content_based_on_evaluation_type(
+                {
+                    "recommendation_doi": "10.1234/xyz",
+                    "evaluation_type": EvaluationType.REVIEW,
+                    "round_number": "1",
+                    "evaluation_number": "2",
+                }
+            )
+            assert result == "Second review"
