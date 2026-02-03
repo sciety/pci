@@ -55,8 +55,6 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request):
             if len(recommendations) < int(decoded_request["round_number"]):
                 return None
             reviewRoundDecision = recommendations[int(decoded_request["round_number"]) - 1]
-            if reviewRoundDecision == None:
-                return None
             return reviewRoundDecision.reply
 
         case EvaluationType.REVIEW:
