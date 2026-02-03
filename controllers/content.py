@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from typing import Optional, TypedDict
 
 from gluon.contrib.markdown import WIKI
 from gluon.http import HTTP  # type: ignore
@@ -13,9 +14,15 @@ class EvaluationType(Enum):
     AUTHOR_RESPONSE = "ar"
     RECOMMENDATION = "recommendation"
 
+class DecodedRequestTypedDict(TypedDict):
+    recommendation_doi: str
+    evaluation_type: EvaluationType
+    round_number: Optional[str]
+    evaluation_number: Optional[str]
+
 
 # We assume there are never more than nine review rounds
-def _decode_evaluation_doi(path: str):
+def _decode_evaluation_doi(path: str) -> DecodedRequestTypedDict:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)(\d*)$", path)
     if not match:
         return dict(
@@ -35,7 +42,7 @@ def _decode_evaluation_doi(path: str):
     )
 
 
-def _get_markdown_content_based_on_evaluation_type(decoded_request):
+def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequestTypedDict):
     recommendations = Recommendation.get_by_doi(decoded_request["recommendation_doi"])
     if not recommendations:
         return None
