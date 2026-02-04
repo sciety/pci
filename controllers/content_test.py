@@ -85,11 +85,15 @@ def test_decode_evaluation_doi(case):
     assert result == case["expected"]
 
 class TestDecodeEvaluationDoi:
-    def test_should_raise_exception_for_decisions_that_have_evaluation_number(
-            self,
-            recommendation_class_mock: MagicMock,
+    def test_should_raise_exception_for_decisions_without_round_number(
+            self
         ):
-            recommendation_class_mock.get_by_doi.return_value = [{}]
+            with pytest.raises(HTTP):
+                _decode_evaluation_doi("10.1234/xyz.d")
+
+    def test_should_raise_exception_for_decisions_that_have_evaluation_number(
+            self
+        ):
             with pytest.raises(HTTP):
                 _decode_evaluation_doi("10.1234/xyz.d13")
 

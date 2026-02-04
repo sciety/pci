@@ -30,7 +30,7 @@ class DecodedDecisionRequest:
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str) -> DecodedRequest | DecodedDecisionRequest:
-    match = re.match(r"^(.*)\.(rev|d|ar)(\d)(\d*)$", path)
+    match = re.match(r"^(.*)\.(rev|d|ar)(\d)?(\d*)$", path)
     if not match:
         return DecodedRequest(
             recommendation_doi=path,
@@ -42,7 +42,7 @@ def _decode_evaluation_doi(path: str) -> DecodedRequest | DecodedDecisionRequest
         match.groups()
     )
     if evaluation_type == "d":
-        if evaluation_number:
+        if evaluation_number or not round_number:
             raise HTTP(400, "Invalid DOI")
         return DecodedDecisionRequest(
             recommendation_doi=recommendation_doi,
