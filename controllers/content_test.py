@@ -101,6 +101,12 @@ class TestDecodeEvaluationDoi:
             with pytest.raises(HTTP):
                 _decode_evaluation_doi("10.1234/xyz.rev1")
 
+    def test_should_raise_error_if_requested_rev_with_three_digits_due_to_ambiguity(
+            self,
+        ):
+            with pytest.raises(HTTP):
+                _decode_evaluation_doi("10.1234/xyz.rev111")
+
 class TestGetMarkdownContentBasedOnEvaluationType:
     def test_should_pass_doi_to_get_by_doi_function(
         self,

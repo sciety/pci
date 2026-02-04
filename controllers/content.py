@@ -59,6 +59,8 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
     if evaluation_type == "rev":
         if not evaluation_number:
             raise HTTP(400, "Invalid DOI")
+        if len(evaluation_number) != 1:
+            raise HTTP(400, "Invalid DOI due to ambiguity")
         return DecodedReviewRequest(
             recommendation_doi=recommendation_doi,
             round_number=int(round_number),
