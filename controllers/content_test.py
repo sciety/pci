@@ -206,6 +206,24 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             assert result == "Foo bar"
 
     class TestReviewType:
+        def test_should_pass_recommendation_id_to_get_by_recommendation_id_function(
+            self,
+            recommendation_class_mock: MagicMock,
+            review_class_mock: MagicMock,
+        ):
+            expected_recommendation = RecommendationMock(id=42)
+            recommendation_class_mock.get_by_doi.return_value = [
+                expected_recommendation
+            ]
+            _get_markdown_content_based_on_evaluation_type(
+                DecodedReviewRequest(
+                    recommendation_doi="10.1234/xyz",
+                    round_number=1,
+                    evaluation_number=2,
+                )
+            )
+            review_class_mock.get_by_recommendation_id.assert_called_once_with(expected_recommendation.id)
+
         def test_should_return_none_if_requested_round_does_not_exist(
             self,
             recommendation_class_mock: MagicMock,
