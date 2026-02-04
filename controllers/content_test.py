@@ -151,11 +151,10 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedDecisionRequest(
                     recommendation_doi="10.1234/xyz",
                     evaluation_type=EvaluationType.DECISION,
-                    round_number=2,
-                    evaluation_number=None,
+                    round_number=2
                 )
             )
             assert result is None
@@ -170,11 +169,10 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock()
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedDecisionRequest(
                     recommendation_doi="10.1234/xyz",
                     evaluation_type=EvaluationType.DECISION,
-                    round_number=2,
-                    evaluation_number=None,
+                    round_number=2
                 )
             )
             assert result == "Foo bar"

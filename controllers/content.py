@@ -28,8 +28,10 @@ class DecodedDecisionRequest:
     evaluation_type: Literal[EvaluationType.DECISION]
     round_number: int
 
+NewDecodedRequest = DecodedRequest | DecodedDecisionRequest
+
 # We assume there are never more than nine review rounds
-def _decode_evaluation_doi(path: str) -> DecodedRequest | DecodedDecisionRequest:
+def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)?(\d*)$", path)
     if not match:
         return DecodedRequest(
@@ -61,7 +63,7 @@ def _decode_evaluation_doi(path: str) -> DecodedRequest | DecodedDecisionRequest
     )
 
 
-def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequest):
+def _get_markdown_content_based_on_evaluation_type(decoded_request: NewDecodedRequest):
     recommendations = Recommendation.get_by_doi(decoded_request.recommendation_doi)
     if not recommendations:
         return None
