@@ -8,6 +8,7 @@ from gluon.http import HTTP  # type: ignore
 import controllers.content as controllers_module
 from controllers.content import (
     DecodedAuthorResponseRequest,
+    DecodedRecommendationRequest,
     DecodedRequest,
     DecodedDecisionRequest,
     DecodedReviewRequest,
@@ -55,11 +56,8 @@ test_cases = [
     },
     {
         "path": "10.1234/xyz",
-        "expected": DecodedRequest(
-            recommendation_doi="10.1234/xyz",
-            evaluation_type=EvaluationType.RECOMMENDATION,
-            round_number=None,
-            evaluation_number=None,
+        "expected": DecodedRecommendationRequest(
+            recommendation_doi="10.1234/xyz"
         ),
     },
 ]
@@ -269,7 +267,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             assert result == "Second review"
 
     class TestRecommendationType:
-
         def test_should_return_recommendation_content_when_no_evalation_or_round_number_is_present(
                 self,
                 recommendation_class_mock: MagicMock,
@@ -281,11 +278,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock(recommendation_comments="Final recommendation content"),
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
-                    recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.RECOMMENDATION,
-                    round_number=None,
-                    evaluation_number=None,   
-                )
+                DecodedRecommendationRequest(recommendation_doi="10.1234/xyz")
             )
             assert result == "Final recommendation content"

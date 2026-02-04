@@ -41,19 +41,20 @@ class DecodedReviewRequest:
     evaluation_number: int
     evaluation_type: Literal[EvaluationType.REVIEW] = EvaluationType.REVIEW
 
+@dataclass(frozen=True)
+class DecodedRecommendationRequest:
+    recommendation_doi: str
+    evaluation_type: Literal[EvaluationType.RECOMMENDATION] = EvaluationType.RECOMMENDATION
 
 
-NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest
+NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)?(\d*)$", path)
     if not match:
-        return DecodedRequest(
-            recommendation_doi=path,
-            evaluation_type=EvaluationType("recommendation"),
-            round_number=None,
-            evaluation_number=None,
+        return DecodedRecommendationRequest(
+            recommendation_doi=path
         )
     recommendation_doi, evaluation_type, round_number, evaluation_number = (
         match.groups()
