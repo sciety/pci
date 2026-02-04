@@ -9,7 +9,6 @@ import controllers.content as controllers_module
 from controllers.content import (
     DecodedAuthorResponseRequest,
     DecodedRecommendationRequest,
-    DecodedRequest,
     DecodedDecisionRequest,
     DecodedReviewRequest,
     EvaluationType,
@@ -111,9 +110,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         recommendation_class_mock: MagicMock,
     ):
         _get_markdown_content_based_on_evaluation_type(
-            DecodedRequest(
+            DecodedReviewRequest(
                 recommendation_doi="10.1234/xyz",
-                evaluation_type=ANY_EVALUATION_TYPE,
                 round_number=1,
                 evaluation_number=2,
             )
@@ -126,9 +124,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     ):
         recommendation_class_mock.get_by_doi.return_value = None
         result = _get_markdown_content_based_on_evaluation_type(
-            DecodedRequest(
+            DecodedReviewRequest(
                 recommendation_doi="10.1234/xyz",
-                evaluation_type=ANY_EVALUATION_TYPE,
                 round_number=1,
                 evaluation_number=2,
             )
@@ -141,9 +138,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
     ):
         recommendation_class_mock.get_by_doi.return_value = []
         result = _get_markdown_content_based_on_evaluation_type(
-            DecodedRequest(
+            DecodedReviewRequest(
                 recommendation_doi="10.1234/xyz",
-                evaluation_type=ANY_EVALUATION_TYPE,
                 round_number=1,
                 evaluation_number=2,
             )

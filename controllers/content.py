@@ -16,13 +16,6 @@ class EvaluationType(Enum):
     RECOMMENDATION = "recommendation"
 
 @dataclass(frozen=True)
-class DecodedRequest:
-    recommendation_doi: str
-    evaluation_type: EvaluationType
-    round_number: Optional[int]
-    evaluation_number: Optional[int]
-
-@dataclass(frozen=True)
 class DecodedDecisionRequest:
     recommendation_doi: str
     round_number: int
@@ -47,7 +40,7 @@ class DecodedRecommendationRequest:
     evaluation_type: Literal[EvaluationType.RECOMMENDATION] = EvaluationType.RECOMMENDATION
 
 
-NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
+NewDecodedRequest = DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
