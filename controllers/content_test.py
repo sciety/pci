@@ -43,7 +43,6 @@ test_cases = [
         "path": "10.1234/xyz.d1",
         "expected": DecodedDecisionRequest(
             recommendation_doi="10.1234/xyz",
-            evaluation_type=EvaluationType.DECISION,
             round_number=1
         ),
     },
@@ -162,7 +161,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             result = _get_markdown_content_based_on_evaluation_type(
                 DecodedDecisionRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.DECISION,
                     round_number=2
                 )
             )
@@ -180,7 +178,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             result = _get_markdown_content_based_on_evaluation_type(
                 DecodedDecisionRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.DECISION,
                     round_number=2
                 )
             )

@@ -25,8 +25,8 @@ class DecodedRequest:
 @dataclass(frozen=True)
 class DecodedDecisionRequest:
     recommendation_doi: str
-    evaluation_type: Literal[EvaluationType.DECISION]
     round_number: int
+    evaluation_type: Literal[EvaluationType.DECISION] = EvaluationType.DECISION
 
 @dataclass(frozen=True)
 class DecodedAuthorResponseRequest:
@@ -63,7 +63,6 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
             raise HTTP(400, "Invalid DOI")
         return DecodedDecisionRequest(
             recommendation_doi=recommendation_doi,
-            evaluation_type=EvaluationType.DECISION,
             round_number=int(round_number),
         )
     if evaluation_type == "ar":
