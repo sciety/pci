@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 import re
-from enum import Enum
-from typing import Literal, Optional, TypedDict
 
 from gluon.contrib.markdown import WIKI
 from gluon.http import HTTP  # type: ignore
@@ -30,10 +28,10 @@ class DecodedRecommendationRequest:
     recommendation_doi: str
 
 
-NewDecodedRequest = DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
+DecodedRequest = DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
 
 # We assume there are never more than nine review rounds
-def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
+def _decode_evaluation_doi(path: str) -> DecodedRequest:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)?(\d*)$", path)
     if not match:
         return DecodedRecommendationRequest(
@@ -70,34 +68,35 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
     raise HTTP(400, "Unable to decode request")
 
 
-def _get_markdown_content_based_on_evaluation_type(decoded_request: NewDecodedRequest):
+def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedRequest):
     recommendations = Recommendation.get_by_doi(decoded_request.recommendation_doi)
     if not recommendations:
         return None
-    lastRecommendation = recommendations[-1]
     match decoded_request:
         case DecodedDecisionRequest():
             if len(recommendations) < decoded_request.round_number:
                 return None
-            reviewRoundDecision = recommendations[decoded_request.round_number - 1]
-            return reviewRoundDecision.recommendation_comments
+            review_round_decision = recommendations[decoded_request.round_number - 1]
+            return review_round_decision.recommendation_comments
         case DecodedAuthorResponseRequest():
             if len(recommendations) < decoded_request.round_number:
                 return None
-            reviewRoundDecision = recommendations[decoded_request.round_number - 1]
-            return reviewRoundDecision.reply
+            review_round_decision = recommendations[decoded_request.round_number - 1]
+            return review_round_decision.reply
         case DecodedReviewRequest():
             if len(recommendations) < decoded_request.round_number:
                 return None
-            relevantRecommendation = recommendations[decoded_request.round_number - 1]
-            reviewsForRecommendationDescending = Review.get_by_recommendation_id(relevantRecommendation.id)
-            if len(reviewsForRecommendationDescending) < decoded_request.evaluation_number:
+            relevant_recommendation = recommendations[decoded_request.round_number - 1]
+            reviews_for_recommendation_descending = Review.get_by_recommendation_id(relevant_recommendation.id)
+            if len(reviews_for_recommendation_descending) < decoded_request.evaluation_number:
                 return None
-            reviewLocationInTheArray = decoded_request.evaluation_number - 1
-            relevantReview = reviewsForRecommendationDescending[reviewLocationInTheArray]
-            return relevantReview.review
+            review_location_in_the_array = decoded_request.evaluation_number - 1
+            relevant_review = reviews_for_recommendation_descending[review_location_in_the_array]
+            return relevant_review.review
         case DecodedRecommendationRequest():
-            return lastRecommendation.recommendation_comments
+            last_recommendation = recommendations[-1]
+            return last_recommendation.recommendation_comments
+    # This should never happen because we have handled all possible types
     return None
 
 

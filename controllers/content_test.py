@@ -38,44 +38,6 @@ def _review_class_mock() -> Iterator[MagicMock]:
         yield mock
 
 
-@pytest.mark.parametrize(
-    "case",
-    [
-        {
-            "path": "10.1234/xyz.rev12",
-            "expected": DecodedReviewRequest(
-                recommendation_doi="10.1234/xyz",
-                round_number=1,
-                evaluation_number=2,
-            ),
-        },
-        {
-            "path": "10.1234/xyz.d1",
-            "expected": DecodedDecisionRequest(
-                recommendation_doi="10.1234/xyz",
-                round_number=1
-            ),
-        },
-        {
-            "path": "10.1234/xyz.ar3",
-            "expected": DecodedAuthorResponseRequest(
-                recommendation_doi="10.1234/xyz",
-                round_number=3
-            ),
-        },
-        {
-            "path": "10.1234/xyz",
-            "expected": DecodedRecommendationRequest(
-                recommendation_doi="10.1234/xyz"
-            ),
-        },
-    ],
-    ids=lambda c: c["path"]
-)
-def test_decode_evaluation_doi(case):
-    result = _decode_evaluation_doi(case["path"])
-    assert result == case["expected"]
-
 class TestDecodeEvaluationDoi:
     def test_should_raise_exception_for_decisions_without_round_number(
             self
@@ -108,6 +70,44 @@ class TestDecodeEvaluationDoi:
                 _decode_evaluation_doi("10.1234/xyz.rev111")
 
 class TestGetMarkdownContentBasedOnEvaluationType:
+    @pytest.mark.parametrize(
+        "case",
+        [
+            {
+                "path": "10.1234/xyz.rev12",
+                "expected": DecodedReviewRequest(
+                    recommendation_doi="10.1234/xyz",
+                    round_number=1,
+                    evaluation_number=2,
+                ),
+            },
+            {
+                "path": "10.1234/xyz.d1",
+                "expected": DecodedDecisionRequest(
+                    recommendation_doi="10.1234/xyz",
+                    round_number=1
+                ),
+            },
+            {
+                "path": "10.1234/xyz.ar3",
+                "expected": DecodedAuthorResponseRequest(
+                    recommendation_doi="10.1234/xyz",
+                    round_number=3
+                ),
+            },
+            {
+                "path": "10.1234/xyz",
+                "expected": DecodedRecommendationRequest(
+                    recommendation_doi="10.1234/xyz"
+                ),
+            },
+        ],
+        ids=lambda c: c["path"]
+    )
+    def test_decode_evaluation_doi(self, case):
+        result = _decode_evaluation_doi(case["path"])
+        assert result == case["expected"]
+
     def test_should_pass_doi_to_get_by_doi_function(
         self,
         recommendation_class_mock: MagicMock,
