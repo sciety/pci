@@ -19,25 +19,21 @@ class EvaluationType(Enum):
 class DecodedDecisionRequest:
     recommendation_doi: str
     round_number: int
-    evaluation_type: Literal[EvaluationType.DECISION] = EvaluationType.DECISION
 
 @dataclass(frozen=True)
 class DecodedAuthorResponseRequest:
     recommendation_doi: str
     round_number: int
-    evaluation_type: Literal[EvaluationType.AUTHOR_RESPONSE] = EvaluationType.AUTHOR_RESPONSE
 
 @dataclass(frozen=True)
 class DecodedReviewRequest:
     recommendation_doi: str
     round_number: int
     evaluation_number: int
-    evaluation_type: Literal[EvaluationType.REVIEW] = EvaluationType.REVIEW
 
 @dataclass(frozen=True)
 class DecodedRecommendationRequest:
     recommendation_doi: str
-    evaluation_type: Literal[EvaluationType.RECOMMENDATION] = EvaluationType.RECOMMENDATION
 
 
 NewDecodedRequest = DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest | DecodedRecommendationRequest
