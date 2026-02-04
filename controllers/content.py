@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import re
 from enum import Enum
-from typing import Optional, TypedDict
+from typing import Literal, Optional, TypedDict
 
 from gluon.contrib.markdown import WIKI
 from gluon.http import HTTP  # type: ignore
@@ -22,9 +22,14 @@ class DecodedRequest:
     round_number: Optional[int]
     evaluation_number: Optional[int]
 
+@dataclass(frozen=True)
+class DecodedDecisionRequest:
+    recommendation_doi: str
+    evaluation_type: Literal[EvaluationType.DECISION]
+    round_number: int
 
 # We assume there are never more than nine review rounds
-def _decode_evaluation_doi(path: str) -> DecodedRequest:
+def _decode_evaluation_doi(path: str) -> DecodedRequest | DecodedDecisionRequest:
     match = re.match(r"^(.*)\.(rev|d|ar)(\d)(\d*)$", path)
     if not match:
         return DecodedRequest(
@@ -36,6 +41,14 @@ def _decode_evaluation_doi(path: str) -> DecodedRequest:
     recommendation_doi, evaluation_type, round_number, evaluation_number = (
         match.groups()
     )
+    if evaluation_type == "d":
+        if evaluation_number:
+            raise HTTP(400, "Invalid DOI")
+        return DecodedDecisionRequest(
+            recommendation_doi=recommendation_doi,
+            evaluation_type=EvaluationType.DECISION,
+            round_number=int(round_number),
+        )
     return DecodedRequest(
         recommendation_doi=recommendation_doi,
         evaluation_type=EvaluationType(evaluation_type),
@@ -57,8 +70,6 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: DecodedReque
         case EvaluationType.DECISION:
             if not decoded_request.round_number:
                 raise HTTP(400, "Invalid DOI due to missing round number")
-            if decoded_request.evaluation_number:
-                raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request.round_number:
                 return None
             reviewRoundDecision = recommendations[decoded_request.round_number - 1]

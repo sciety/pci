@@ -8,6 +8,7 @@ from gluon.http import HTTP  # type: ignore
 import controllers.content as controllers_module
 from controllers.content import (
     DecodedRequest,
+    DecodedDecisionRequest,
     EvaluationType,
     _decode_evaluation_doi,
     _get_markdown_content_based_on_evaluation_type,
@@ -39,11 +40,10 @@ test_cases = [
     },
     {
         "path": "10.1234/xyz.d1",
-        "expected": DecodedRequest(
+        "expected": DecodedDecisionRequest(
             recommendation_doi="10.1234/xyz",
             evaluation_type=EvaluationType.DECISION,
-            round_number=1,
-            evaluation_number=None,
+            round_number=1
         ),
     },
     {
@@ -83,6 +83,16 @@ def _review_class_mock() -> Iterator[MagicMock]:
 def test_decode_evaluation_doi(case):
     result = _decode_evaluation_doi(case["path"])
     assert result == case["expected"]
+
+class TestDecodeEvaluationDoi:
+    def test_should_raise_exception_for_decisions_that_have_evaluation_number(
+            self,
+            recommendation_class_mock: MagicMock,
+        ):
+            recommendation_class_mock.get_by_doi.return_value = [{}]
+            with pytest.raises(HTTP):
+                _decode_evaluation_doi("10.1234/xyz.d13")
+
 
 
 class TestGetMarkdownContentBasedOnEvaluationType:
@@ -131,21 +141,6 @@ class TestGetMarkdownContentBasedOnEvaluationType:
         assert result is None
 
     class TestDecisionType:
-        def test_should_raise_exception_for_decisions_that_have_evaluation_number(
-            self,
-            recommendation_class_mock: MagicMock,
-        ):
-            recommendation_class_mock.get_by_doi.return_value = [{}]
-            with pytest.raises(HTTP):
-                _get_markdown_content_based_on_evaluation_type(
-                    DecodedRequest(
-                        recommendation_doi="10.1234/xyz",
-                        evaluation_type=EvaluationType.DECISION,
-                        round_number=1,
-                        evaluation_number=3,
-                    )
-                )
-        
         def test_requested_round_does_not_exist(
             self,
             recommendation_class_mock: MagicMock,
