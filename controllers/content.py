@@ -81,16 +81,8 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
             round_number=int(round_number),
             evaluation_number=int(evaluation_number)
         )
-    return DecodedRequest(
-        recommendation_doi=recommendation_doi,
-        evaluation_type=EvaluationType(evaluation_type),
-        round_number=int(round_number),
-        evaluation_number=(
-            int(evaluation_number)
-            if evaluation_number
-            else None
-        ),
-    )
+    # This should never happen due to regular expression
+    raise HTTP(400, "Unable to decode request")
 
 
 def _get_markdown_content_based_on_evaluation_type(decoded_request: NewDecodedRequest):
