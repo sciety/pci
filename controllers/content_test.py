@@ -7,6 +7,7 @@ from gluon.http import HTTP  # type: ignore
 
 import controllers.content as controllers_module
 from controllers.content import (
+    DecodedAuthorResponseRequest,
     DecodedRequest,
     DecodedDecisionRequest,
     EvaluationType,
@@ -48,11 +49,9 @@ test_cases = [
     },
     {
         "path": "10.1234/xyz.ar3",
-        "expected": DecodedRequest(
+        "expected": DecodedAuthorResponseRequest(
             recommendation_doi="10.1234/xyz",
-            evaluation_type=EvaluationType.AUTHOR_RESPONSE,
-            round_number=3,
-            evaluation_number=None,
+            round_number=3
         ),
     },
     {
@@ -96,6 +95,12 @@ class TestDecodeEvaluationDoi:
         ):
             with pytest.raises(HTTP):
                 _decode_evaluation_doi("10.1234/xyz.d13")
+
+    def test_should_raise_exception_for_author_response_that_have_evaluation_number(
+            self
+        ):
+            with pytest.raises(HTTP):
+                _decode_evaluation_doi("10.1234/xyz.ar13")
 
 
 
@@ -178,32 +183,15 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             assert result == "Foo bar"
     
     class TestAuthorResponseType:
-        def test_should_raise_exception_for_author_responses_that_have_evaluation_number(
-            self,
-            recommendation_class_mock: MagicMock,
-        ):
-            recommendation_class_mock.get_by_doi.return_value = [{}]
-            with pytest.raises(HTTP):
-                _get_markdown_content_based_on_evaluation_type(
-                    DecodedRequest(
-                        recommendation_doi="10.1234/xyz",
-                        evaluation_type=EvaluationType.AUTHOR_RESPONSE,
-                        round_number=1,
-                        evaluation_number=2,
-                    )
-                )
-
         def test_should_return_none_if_requested_round_does_not_exist(
             self,
             recommendation_class_mock: MagicMock,
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedAuthorResponseRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.AUTHOR_RESPONSE,
-                    round_number=2,
-                    evaluation_number=None,
+                    round_number=2
                 )
             )
             assert result is None
@@ -218,11 +206,9 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 RecommendationMock()
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedAuthorResponseRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.AUTHOR_RESPONSE,
-                    round_number=2,
-                    evaluation_number=None,
+                    round_number=2
                 )
             )
             assert result == "Foo bar"

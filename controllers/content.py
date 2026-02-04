@@ -28,7 +28,15 @@ class DecodedDecisionRequest:
     evaluation_type: Literal[EvaluationType.DECISION]
     round_number: int
 
-NewDecodedRequest = DecodedRequest | DecodedDecisionRequest
+@dataclass(frozen=True)
+class DecodedAuthorResponseRequest:
+    recommendation_doi: str
+    round_number: int
+    evaluation_type: Literal[EvaluationType.AUTHOR_RESPONSE] = EvaluationType.AUTHOR_RESPONSE
+
+
+
+NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
@@ -50,6 +58,13 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
             recommendation_doi=recommendation_doi,
             evaluation_type=EvaluationType.DECISION,
             round_number=int(round_number),
+        )
+    if evaluation_type == "ar":
+        if evaluation_number or not round_number:
+            raise HTTP(400, "Invalid DOI")
+        return DecodedAuthorResponseRequest(
+            recommendation_doi=recommendation_doi,
+            round_number=int(round_number)
         )
     return DecodedRequest(
         recommendation_doi=recommendation_doi,
@@ -80,8 +95,6 @@ def _get_markdown_content_based_on_evaluation_type(decoded_request: NewDecodedRe
         case EvaluationType.AUTHOR_RESPONSE:
             if not decoded_request.round_number:
                 raise HTTP(400, "Invalid DOI due to missing round number")
-            if decoded_request.evaluation_number:
-                raise HTTP(400, "Invalid DOI")
             if len(recommendations) < decoded_request.round_number:
                 return None
             reviewRoundDecision = recommendations[decoded_request.round_number - 1]
