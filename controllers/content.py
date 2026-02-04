@@ -9,12 +9,6 @@ from gluon.http import HTTP  # type: ignore
 from models.recommendation import Recommendation
 from models.review import Review
 
-class EvaluationType(Enum):
-    REVIEW = "rev"
-    DECISION = "d"
-    AUTHOR_RESPONSE = "ar"
-    RECOMMENDATION = "recommendation"
-
 @dataclass(frozen=True)
 class DecodedDecisionRequest:
     recommendation_doi: str

@@ -11,7 +11,6 @@ from controllers.content import (
     DecodedRecommendationRequest,
     DecodedDecisionRequest,
     DecodedReviewRequest,
-    EvaluationType,
     _decode_evaluation_doi,
     _get_markdown_content_based_on_evaluation_type,
 )
@@ -27,8 +26,6 @@ class RecommendationMock:
 class ReviewMock:
     review: Optional[str] = None
 
-
-ANY_EVALUATION_TYPE = EvaluationType.REVIEW
 
 test_cases = [
     {
