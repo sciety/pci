@@ -271,6 +271,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             )
             assert result == "Second review"
 
+    class TestRecommendationType:
+
         def test_should_return_recommendation_content_when_no_evalation_or_round_number_is_present(
                 self,
                 recommendation_class_mock: MagicMock,
