@@ -26,39 +26,6 @@ class RecommendationMock:
 class ReviewMock:
     review: Optional[str] = None
 
-
-test_cases = [
-    {
-        "path": "10.1234/xyz.rev12",
-        "expected": DecodedReviewRequest(
-            recommendation_doi="10.1234/xyz",
-            round_number=1,
-            evaluation_number=2,
-        ),
-    },
-    {
-        "path": "10.1234/xyz.d1",
-        "expected": DecodedDecisionRequest(
-            recommendation_doi="10.1234/xyz",
-            round_number=1
-        ),
-    },
-    {
-        "path": "10.1234/xyz.ar3",
-        "expected": DecodedAuthorResponseRequest(
-            recommendation_doi="10.1234/xyz",
-            round_number=3
-        ),
-    },
-    {
-        "path": "10.1234/xyz",
-        "expected": DecodedRecommendationRequest(
-            recommendation_doi="10.1234/xyz"
-        ),
-    },
-]
-
-
 @pytest.fixture(name="recommendation_class_mock")
 def _recommendation_class_mock() -> Iterator[MagicMock]:
     with patch.object(controllers_module, "Recommendation") as mock:
@@ -71,7 +38,40 @@ def _review_class_mock() -> Iterator[MagicMock]:
         yield mock
 
 
-@pytest.mark.parametrize("case", test_cases, ids=lambda c: c["path"])
+@pytest.mark.parametrize(
+    "case",
+    [
+        {
+            "path": "10.1234/xyz.rev12",
+            "expected": DecodedReviewRequest(
+                recommendation_doi="10.1234/xyz",
+                round_number=1,
+                evaluation_number=2,
+            ),
+        },
+        {
+            "path": "10.1234/xyz.d1",
+            "expected": DecodedDecisionRequest(
+                recommendation_doi="10.1234/xyz",
+                round_number=1
+            ),
+        },
+        {
+            "path": "10.1234/xyz.ar3",
+            "expected": DecodedAuthorResponseRequest(
+                recommendation_doi="10.1234/xyz",
+                round_number=3
+            ),
+        },
+        {
+            "path": "10.1234/xyz",
+            "expected": DecodedRecommendationRequest(
+                recommendation_doi="10.1234/xyz"
+            ),
+        },
+    ],
+    ids=lambda c: c["path"]
+)
 def test_decode_evaluation_doi(case):
     result = _decode_evaluation_doi(case["path"])
     assert result == case["expected"]
