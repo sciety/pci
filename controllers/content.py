@@ -34,9 +34,16 @@ class DecodedAuthorResponseRequest:
     round_number: int
     evaluation_type: Literal[EvaluationType.AUTHOR_RESPONSE] = EvaluationType.AUTHOR_RESPONSE
 
+@dataclass(frozen=True)
+class DecodedReviewRequest:
+    recommendation_doi: str
+    round_number: int
+    evaluation_number: int
+    evaluation_type: Literal[EvaluationType.REVIEW] = EvaluationType.REVIEW
 
 
-NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest
+
+NewDecodedRequest = DecodedRequest | DecodedDecisionRequest | DecodedAuthorResponseRequest | DecodedReviewRequest
 
 # We assume there are never more than nine review rounds
 def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
@@ -65,6 +72,14 @@ def _decode_evaluation_doi(path: str) -> NewDecodedRequest:
         return DecodedAuthorResponseRequest(
             recommendation_doi=recommendation_doi,
             round_number=int(round_number)
+        )
+    if evaluation_type == "rev":
+        if not evaluation_number:
+            raise HTTP(400, "Invalid DOI")
+        return DecodedReviewRequest(
+            recommendation_doi=recommendation_doi,
+            round_number=int(round_number),
+            evaluation_number=int(evaluation_number)
         )
     return DecodedRequest(
         recommendation_doi=recommendation_doi,

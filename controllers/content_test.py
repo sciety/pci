@@ -10,6 +10,7 @@ from controllers.content import (
     DecodedAuthorResponseRequest,
     DecodedRequest,
     DecodedDecisionRequest,
+    DecodedReviewRequest,
     EvaluationType,
     _decode_evaluation_doi,
     _get_markdown_content_based_on_evaluation_type,
@@ -32,9 +33,8 @@ ANY_EVALUATION_TYPE = EvaluationType.REVIEW
 test_cases = [
     {
         "path": "10.1234/xyz.rev12",
-        "expected": DecodedRequest(
+        "expected": DecodedReviewRequest(
             recommendation_doi="10.1234/xyz",
-            evaluation_type=EvaluationType.REVIEW,
             round_number=1,
             evaluation_number=2,
         ),
@@ -102,7 +102,11 @@ class TestDecodeEvaluationDoi:
             with pytest.raises(HTTP):
                 _decode_evaluation_doi("10.1234/xyz.ar13")
 
-
+    def test_should_raise_error_if_requested_evaluation_number_is_empty(
+            self,
+        ):
+            with pytest.raises(HTTP):
+                _decode_evaluation_doi("10.1234/xyz.rev1")
 
 class TestGetMarkdownContentBasedOnEvaluationType:
     def test_should_pass_doi_to_get_by_doi_function(
@@ -214,30 +218,14 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             assert result == "Foo bar"
 
     class TestReviewType:
-        def test_should_raise_error_if_requested_evaluation_number_is_empty(
-            self,
-            recommendation_class_mock: MagicMock,
-        ):
-            recommendation_class_mock.get_by_doi.return_value = [{}]
-            with pytest.raises(HTTP):
-                _get_markdown_content_based_on_evaluation_type(
-                    DecodedRequest(
-                        recommendation_doi="10.1234/xyz",
-                        evaluation_type=EvaluationType.REVIEW,
-                        round_number=2,
-                        evaluation_number=None,
-                    )
-                )
-
         def test_should_return_none_if_requested_round_does_not_exist(
             self,
             recommendation_class_mock: MagicMock,
         ):
             recommendation_class_mock.get_by_doi.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedReviewRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.REVIEW,
                     round_number=2,
                     evaluation_number=1,
                 )
@@ -254,9 +242,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
             ]
             review_class_mock.get_by_recommendation_id.return_value = [{}]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedReviewRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.REVIEW,
                     round_number=1,
                     evaluation_number=2,
                 )
@@ -276,9 +263,8 @@ class TestGetMarkdownContentBasedOnEvaluationType:
                 ReviewMock(review="Second review"),
             ]
             result = _get_markdown_content_based_on_evaluation_type(
-                DecodedRequest(
+                DecodedReviewRequest(
                     recommendation_doi="10.1234/xyz",
-                    evaluation_type=EvaluationType.REVIEW,
                     round_number=1,
                     evaluation_number=2,
                 )
