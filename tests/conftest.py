@@ -119,6 +119,18 @@ def lookup(css, text="", contains="", _=driver):
 
 def select_notif(text="", contains=""):
     sleep(DEFAULT_SLEEP)
+    # If no specific text requested, wait for notification with content
+    if not text and not contains:
+        from selenium.common.exceptions import StaleElementReferenceException
+        def notification_has_content(driver):
+            try:
+                elements = driver.find_elements(By.CSS_SELECTOR, ".w2p_flash")
+                if elements and elements[0].text.strip():
+                    return elements[0]
+                return False
+            except StaleElementReferenceException:
+                return False
+        return WebDriverWait(driver, timeout=DEFAULT_TIMEOUT).until(notification_has_content)
     return select(".w2p_flash", text=text, contains=contains)
 
 select.notif = select_notif

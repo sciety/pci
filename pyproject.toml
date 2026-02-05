@@ -28,5 +28,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest",
+    "selenium",
 ]
 
