@@ -193,9 +193,10 @@ test.docker.full:
 test.docker.unittest:
 	docker run \
 		--rm \
+		--volume $(PWD)/tests:/app/tests \
 		--volume $(PWD)/controllers:/app/controllers \
 		pci \
-		bash -c "PYTHONPATH=.:modules uv run pytest controllers"
+		bash -c "cd tests/unit_tests && PYTHONPATH=../..:../../modules uv run pytest"
 
 test.docker.selenium:
 	docker exec pci sh -c "cd tests && pytest $(ARGS)"
